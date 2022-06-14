@@ -9,11 +9,11 @@ def cronitor(http: HttpBackend): Resource[IO, Unit] =
 
   type State = "run" | "fail" | "complete"
 
-  def reportState(s: State, message: Option[String] = None) =
-    def state = uri"$baseUri?state=$s&message=$message"
+  def reportState(state: State, message: Option[String] = None) =
+    val cronitorUri = uri"$baseUri?state=$state&message=$message"
 
     basicRequest
-      .post(state)
+      .post(cronitorUri)
       .responseGetRight
       .send(http)
       .void
@@ -22,6 +22,6 @@ def cronitor(http: HttpBackend): Resource[IO, Unit] =
   Resource.makeCase(reportState("run")) {
     case (_, ExitCase.Succeeded)  => reportState("complete")
     case (_, ExitCase.Canceled)   => reportState("fail")
-    case (_, ExitCase.Errored(e)) => reportState("fail", Some(e.getMessage()))
+    case (_, ExitCase.Errored(e)) => reportState("fail", Some(e.toString()))
   }
 end cronitor

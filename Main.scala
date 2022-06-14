@@ -65,7 +65,7 @@ object Main extends IOApp.Simple:
     LoggingBackend(
       _,
       new LogWrapper,
-      sensitiveHeaders = HeaderNames.SensitiveHeaders + "X-Gotify-Key"
+      sensitiveHeaders = HeaderNames.SensitiveHeaders ++ Set("X-Gotify-Key", "x-amz-cf-id", "x-correlation-id")
     )
   )
 
