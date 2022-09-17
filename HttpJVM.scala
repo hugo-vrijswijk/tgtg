@@ -1,4 +1,4 @@
-// //> using lib "com.softwaremill.sttp.client3::fs2::3.6.2"
+// //> using lib "com.softwaremill.sttp.client3::fs2::3.8.0"
 // //> using platform "jvm"
 
 // import cats.effect.IO

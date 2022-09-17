@@ -1,11 +1,14 @@
-//> using lib "com.softwaremill.sttp.client3::cats::3.6.2"
+//> using lib "com.softwaremill.sttp.client3::cats::3.8.0"
 //> using platform "scala-js"
 //> using jsModuleKind "es"
+//> using jsAvoidClasses false
+//> using jsAvoidLetsAndConsts false
 
-import org.legogroup.woof.Logger
-import cats.effect.{IO, Resource}
-import sttp.client3.impl.cats.FetchCatsBackend
 import cats.effect.syntax.all.*
+import cats.effect.{IO, Resource}
+import org.legogroup.woof.Logger
+import sttp.client3.impl.cats.FetchCatsBackend
+
 import scala.scalajs.js
 import scala.scalajs.js.annotation.*
 

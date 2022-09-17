@@ -1,13 +1,13 @@
 //> using scala "3"
-//> using lib "co.fs2::fs2-core::3.2.8"
-//> using lib "org.typelevel::cats-effect::3.3.12"
-//> using lib "com.softwaremill.sttp.client3::circe::3.6.2"
-//> using lib "io.chrisdavenport::rediculous::0.3.2"
-//> using lib "io.circe::circe-core::0.14.2"
-//> using lib "io.circe::circe-generic::0.14.2"
-//> using lib "io.circe::circe-parser::0.14.2"
-//> using lib "org.scodec::scodec-core::2.1.0"
-//> using lib "org.legogroup::woof-core::0.4.4"
+//> using lib "co.fs2::fs2-core::3.3.0"
+//> using lib "org.typelevel::cats-effect::3.3.14"
+//> using lib "com.softwaremill.sttp.client3::circe::3.8.0"
+//> using lib "io.chrisdavenport::rediculous::0.4.0"
+//> using lib "io.circe::circe-core::0.14.3"
+//> using lib "io.circe::circe-generic::0.14.3"
+//> using lib "io.circe::circe-parser::0.14.3"
+//> using lib "org.scodec::scodec-core::2.2.0"
+//> using lib "org.legogroup::woof-core::0.4.6"
 
 import cats.effect.*
 import cats.syntax.all.*
@@ -47,7 +47,7 @@ object Main extends IOApp.Simple:
                   .get[Boolean](key)
                   .map(!_.isDefined)
                   .ifM(
-                    redis.set(true, key, 30.minutes) *>
+                    redis.set(true, key, 40.minutes) *>
                       gotify.sendNotification(GotifyMessage(title = item.display_name, message = item.show)),
                     Logger[IO]
                       .info(show"Found boxes, but notification for '$key' was already sent in the last 30 minutes")

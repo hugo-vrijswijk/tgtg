@@ -1,6 +1,8 @@
+import cats.Show
 import cats.data.Chain
 import cats.effect.IO
 import cats.syntax.parallel.*
+import cats.syntax.show.*
 import cats.syntax.traverse.*
 import io.chrisdavenport.rediculous.RedisCommands.SetOpts
 import io.chrisdavenport.rediculous.*
@@ -8,22 +10,32 @@ import org.legogroup.woof.{Logger, given}
 import scodec.Codec
 import scodec.bits.ByteVector
 import scodec.codecs.utf8
-import cats.syntax.show.*
 
 import scala.concurrent.duration.FiniteDuration
 
 class CacheService(client: RedisConnection[IO])(using Logger[IO]):
+
+  given Show[Throwable] = Show.fromToString
+
   def get[T: Codec](key: String): IO[Option[T]] =
     keyToBV(key)
       .map(RedisCommands.getBV[RedisIO](_))
       .flatMap(_.run(client))
       .flatMap(_.traverse(decode)) // Raise an error if decoding fails
+      .redeemWith(
+        e => Logger[IO].error(show"Failed to get key '$key': $e").as(None),
+        IO.pure(_)
+      )
       .logTimed(show"getting '$key'")
 
-  def set[T: Codec](value: T, key: String, ttl: FiniteDuration) =
+  def set[T: Codec](value: T, key: String, ttl: FiniteDuration): IO[Unit] =
     (keyToBV(key), encode(value)).parTupled
       .map((k, v) => RedisCommands.setBV[RedisIO](k, v, SetOpts.default.copy(setSeconds = Some(ttl.toSeconds))))
       .flatMap(_.run(client))
+      .redeemWith(
+        e => Logger[IO].error(show"Failed to set key '$key': $e").void,
+        _ => IO.unit
+      )
       .logTimed(show"setting '$key' with ttl of $ttl")
   end set
 
