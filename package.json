@@ -11,9 +11,9 @@
     "all": "npm run build && npm run scp"
   },
   "dependencies": {
-    "node-fetch": "^3.2.10"
+    "node-fetch": "^3.3.0"
   },
   "devDependencies": {
-    "esbuild": "^0.15.7"
+    "esbuild": "^0.16.12"
   }
 }

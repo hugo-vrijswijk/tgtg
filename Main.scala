@@ -1,14 +1,3 @@
-//> using scala "3"
-//> using lib "co.fs2::fs2-core::3.3.0"
-//> using lib "org.typelevel::cats-effect::3.3.14"
-//> using lib "com.softwaremill.sttp.client3::circe::3.8.0"
-//> using lib "io.chrisdavenport::rediculous::0.4.0"
-//> using lib "io.circe::circe-core::0.14.3"
-//> using lib "io.circe::circe-generic::0.14.3"
-//> using lib "io.circe::circe-parser::0.14.3"
-//> using lib "org.scodec::scodec-core::2.2.0"
-//> using lib "org.legogroup::woof-core::0.4.6"
-
 import cats.effect.*
 import cats.syntax.all.*
 import com.comcast.ip4s.*

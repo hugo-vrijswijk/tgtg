@@ -1,9 +1,3 @@
-//> using lib "com.softwaremill.sttp.client3::cats::3.8.0"
-//> using platform "scala-js"
-//> using jsModuleKind "es"
-//> using jsAvoidClasses false
-//> using jsAvoidLetsAndConsts false
-
 import cats.effect.syntax.all.*
 import cats.effect.{IO, Resource}
 import org.legogroup.woof.Logger
