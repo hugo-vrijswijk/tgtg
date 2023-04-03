@@ -1,5 +1,5 @@
 // import cats.effect.IO
 // import org.legogroup.woof.Logger
-// import sttp.client4.httpclient.fs2.HttpClientFs2Backend
+// import sttp.client4.httpclient.cats.HttpClientCatsBackend
 
-// def httpBackend(using Logger[IO]) = HttpClientFs2Backend.resource[IO]()
+// def httpBackend(using Logger[IO]) = HttpClientCatsBackend.resource[IO]()

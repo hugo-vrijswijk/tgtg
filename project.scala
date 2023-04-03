@@ -14,6 +14,7 @@
 //> using jsModuleKind "es"
 //> using jsAvoidClasses false
 //> using jsAvoidLetsAndConsts false
+//> using jsAllowBigIntsForLongs true
+//> using jsEsVersionStr "es2021"
 
-// //> using lib "com.softwaremill.sttp.client4::fs2::3.8.2"
 // //> using platform "jvm"
