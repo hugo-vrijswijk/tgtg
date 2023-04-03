@@ -65,7 +65,10 @@ class TooGoodToGo(cache: CacheService)(using HttpBackend, Logger[IO]):
     .flatMap(_.betweenInt(0, userAgents.length))
     .map(i =>
       Map(
-        HeaderNames.UserAgent -> userAgents(i)
+        HeaderNames.UserAgent -> userAgents(i),
+        HeaderNames.AcceptLanguage -> "en-US",
+        HeaderNames.Accept -> "application/json",
+        HeaderNames.ContentType -> "application/json; charset=utf-8",
       )
     )
 
