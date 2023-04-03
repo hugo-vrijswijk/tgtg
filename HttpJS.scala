@@ -7,17 +7,19 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation.*
 
 def httpBackend(using Logger[IO]) = Resource
-  .eval(IO {
-    val g = js.Dynamic.global.globalThis
+  .pure(FetchCatsBackend[IO]())
+  .evalTap(_ =>
+    IO {
+      val g = js.Dynamic.global.globalThis
 
-    if js.isUndefined(g.fetch) then
-      g.fetch = NodeFetch.default
-      g.Headers = NodeFetch.Headers
-      g.Request = NodeFetch.Request
-      g.Response = NodeFetch.Response
-    end if
-  })
-  .map(_ => FetchCatsBackend[IO]())
+      if js.isUndefined(g.fetch) then
+        g.fetch = NodeFetch.default
+        g.Headers = NodeFetch.Headers
+        g.Request = NodeFetch.Request
+        g.Response = NodeFetch.Response
+      end if
+    }
+  )
 
 @js.native
 trait NodeFetch extends js.Object:
