@@ -31,6 +31,8 @@ class TooGoodToGo(cache: CacheService)(using HttpBackend, Logger[IO]):
             .send(summon)
         )
         .map(_.body.items)
+        .flatTap(items => Logger[IO].info(show"Found ${items.length} items."))
+        .logTimed("retrieve items")
 
     for
       token <- getAccessToken

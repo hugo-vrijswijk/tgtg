@@ -1,5 +1,6 @@
 import cats.effect.kernel.Resource.ExitCase
 import cats.effect.{IO, Resource}
+import cats.syntax.option.*
 import sttp.client3.*
 import sttp.client3.circe.*
 import sttp.model.*
@@ -9,7 +10,7 @@ def cronitor(http: HttpBackend): Resource[IO, Unit] =
 
   type State = "run" | "fail" | "complete"
 
-  def reportState(state: State, message: Option[String] = None) =
+  def reportState(state: State, message: Option[String] = none) =
     val cronitorUri = uri"$baseUri?state=$state&message=$message"
 
     basicRequest
@@ -21,7 +22,7 @@ def cronitor(http: HttpBackend): Resource[IO, Unit] =
 
   Resource.makeCase(reportState("run")) {
     case (_, ExitCase.Succeeded)  => reportState("complete")
-    case (_, ExitCase.Canceled)   => reportState("fail", Some("Canceled"))
-    case (_, ExitCase.Errored(e)) => reportState("fail", Some(e.toString()))
+    case (_, ExitCase.Canceled)   => reportState("fail", "Canceled".some)
+    case (_, ExitCase.Errored(e)) => reportState("fail", e.toString().some)
   }
 end cronitor

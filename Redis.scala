@@ -1,6 +1,7 @@
 import cats.Show
 import cats.data.Chain
 import cats.effect.IO
+import cats.syntax.option.*
 import cats.syntax.parallel.*
 import cats.syntax.show.*
 import cats.syntax.traverse.*
@@ -22,12 +23,12 @@ class CacheService(client: RedisConnection[IO])(using Logger[IO]):
       .map(RedisCommands.getBV[RedisIO](_))
       .flatMap(_.run(client))
       .flatMap(_.traverse(decode)) // Raise an error if decoding fails
-      .handleErrorWith(e => Logger[IO].error(show"Failed to get key '$key': $e").as(None))
+      .handleErrorWith(e => Logger[IO].error(show"Failed to get key '$key': $e").as(none))
       .logTimed(show"getting '$key'")
-
+  
   def set[T: Codec](value: T, key: String, ttl: FiniteDuration): IO[Unit] =
     (keyToBV(key), encode(value)).parTupled
-      .map((k, v) => RedisCommands.setBV[RedisIO](k, v, SetOpts.default.copy(setSeconds = Some(ttl.toSeconds))))
+      .map((k, v) => RedisCommands.setBV[RedisIO](k, v, SetOpts.default.copy(setSeconds = ttl.toSeconds.some)))
       .flatMap(_.run(client))
       .redeemWith(
         e => Logger[IO].error(show"Failed to set key '$key': $e").void,
