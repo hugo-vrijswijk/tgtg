@@ -33,8 +33,8 @@ class TooGoodToGo(cache: CacheService)(using HttpBackend, Logger[IO]):
         .map(_.body.items)
 
     for
-      r     <- getAccessToken
-      items <- retrieveItems(r)
+      token <- getAccessToken
+      items <- retrieveItems(token)
     yield items
   end getItems
 
@@ -65,17 +65,18 @@ class TooGoodToGo(cache: CacheService)(using HttpBackend, Logger[IO]):
     .flatMap(_.betweenInt(0, userAgents.length))
     .map(i =>
       Map(
-        HeaderNames.UserAgent -> userAgents(i),
-        HeaderNames.AcceptLanguage -> "en-US",
-        HeaderNames.Accept -> "application/json",
-        HeaderNames.ContentType -> "application/json; charset=utf-8",
+        HeaderNames.Accept         -> "application/json",
+        HeaderNames.AcceptEncoding -> "gzip",
+        HeaderNames.AcceptLanguage -> "en-UK",
+        HeaderNames.ContentType    -> "application/json; charset=utf-8",
+        HeaderNames.UserAgent      -> userAgents(i)
       )
     )
 
   private def userAgents = List(
-    "TGTG/22.5.5 Dalvik/2.1.0 (Linux; U; Android 6.0.1; Nexus 5 Build/M4B30Z)",
-    "TGTG/22.5.5 Dalvik/2.1.0 (Linux; U; Android 7.0; SM-G935F Build/NRD90M)",
-    "TGTG/22.5.5 Dalvik/2.1.0 (Linux; Android 6.0.1; SM-G920V Build/MMB29K)"
+    "TGTG/23.3.11 Dalvik/2.1.0 (Linux; U; Android 9; Nexus 5 Build/M4B30Z)",
+    "TGTG/23.3.11 Dalvik/2.1.0 (Linux; U; Android 10; SM-G935F Build/NRD90M)",
+    "TGTG/23.3.11 Dalvik/2.1.0 (Linux; Android 12; SM-G920V Build/MMB29K)"
   )
 
 end TooGoodToGo

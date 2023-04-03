@@ -14,9 +14,7 @@ import scala.concurrent.duration.*
 object Main extends IOApp.Simple:
   val run =
     makeLogger.flatMap { implicit logger =>
-      val resources = (wrappedBackend, redisConnection).parTupled.flatMap { (http, redis) =>
-        cronitor(http).as((http, redis))
-      }
+      val resources = (wrappedBackend.flatTap(cronitor), redisConnection).parTupled
 
       resources.use { (http, redisConnection) =>
         given HttpBackend = http
@@ -32,14 +30,15 @@ object Main extends IOApp.Simple:
               items.parTraverse_ { item =>
                 val key = show"gotify-${item.store.store_name}"
 
+                val notificationTimeout = 40.minutes
                 redis
                   .get[Boolean](key)
                   .map(!_.isDefined)
                   .ifM(
-                    redis.set(true, key, 40.minutes) *>
+                    redis.set(true, key, notificationTimeout) *>
                       gotify.sendNotification(GotifyMessage(title = item.display_name, message = item.show)),
                     Logger[IO]
-                      .info(show"Found boxes, but notification for '$key' was already sent in the last 30 minutes")
+                      .info(show"Found boxes, but notification for '$key' was already sent in the last $notificationTimeout.")
                   )
               }
           }

@@ -22,10 +22,7 @@ class CacheService(client: RedisConnection[IO])(using Logger[IO]):
       .map(RedisCommands.getBV[RedisIO](_))
       .flatMap(_.run(client))
       .flatMap(_.traverse(decode)) // Raise an error if decoding fails
-      .redeemWith(
-        e => Logger[IO].error(show"Failed to get key '$key': $e").as(None),
-        IO.pure(_)
-      )
+      .handleErrorWith(e => Logger[IO].error(show"Failed to get key '$key': $e").as(None))
       .logTimed(show"getting '$key'")
 
   def set[T: Codec](value: T, key: String, ttl: FiniteDuration): IO[Unit] =
@@ -49,8 +46,7 @@ class CacheService(client: RedisConnection[IO])(using Logger[IO]):
     get(key).flatMap {
       case Some(value) =>
         // Cache hit
-        IO.pure(value) <*
-          Logger[IO].debug(show"Cache hit for key '$key'")
+        Logger[IO].debug(show"Cache hit for key '$key'").as(value)
       case None =>
         // Cache miss
         Logger[IO].debug(show"Cache miss for key '$key'") *>
