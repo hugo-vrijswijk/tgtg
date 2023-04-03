@@ -1,11 +1,11 @@
 import cats.effect.kernel.Resource.ExitCase
 import cats.effect.{IO, Resource}
 import cats.syntax.option.*
-import sttp.client3.*
-import sttp.client3.circe.*
+import sttp.client4.*
+import sttp.client4.circe.*
 import sttp.model.*
 
-def cronitor(http: HttpBackend): Resource[IO, Unit] =
+def cronitor(http: Backend[IO]): Resource[IO, Unit] =
   val baseUri = uri"https://cronitor.link/p/${secrets.cronitor}"
 
   type State = "run" | "fail" | "complete"

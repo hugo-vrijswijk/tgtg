@@ -25,7 +25,7 @@ class CacheService(client: RedisConnection[IO])(using Logger[IO]):
       .flatMap(_.traverse(decode)) // Raise an error if decoding fails
       .handleErrorWith(e => Logger[IO].error(show"Failed to get key '$key': $e").as(none))
       .logTimed(show"getting '$key'")
-  
+
   def set[T: Codec](value: T, key: String, ttl: FiniteDuration): IO[Unit] =
     (keyToBV(key), encode(value)).parTupled
       .map((k, v) => RedisCommands.setBV[RedisIO](k, v, SetOpts.default.copy(setSeconds = ttl.toSeconds.some)))

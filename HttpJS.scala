@@ -1,7 +1,7 @@
 import cats.effect.syntax.all.*
 import cats.effect.{IO, Resource}
 import org.legogroup.woof.Logger
-import sttp.client3.impl.cats.FetchCatsBackend
+import sttp.client4.impl.cats.FetchCatsBackend
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.*

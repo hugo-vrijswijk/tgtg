@@ -1,9 +1,9 @@
 import cats.effect.IO
 import org.legogroup.woof.{Logger, given}
-import sttp.client3.*
-import sttp.client3.circe.*
+import sttp.client4.*
+import sttp.client4.circe.*
 
-class Gotify(using HttpBackend, Logger[IO]):
+class Gotify(http: Backend[IO])(using Logger[IO]):
   private val baseUri    = uri"https://gotify.hugovr.dev"
   private val messageUri = uri"$baseUri/message"
 
@@ -13,7 +13,7 @@ class Gotify(using HttpBackend, Logger[IO]):
       .header("X-Gotify-Key", secrets.gotifyKey)
       .responseGetRight
       .body(msg)
-      .send(summon[HttpBackend])
+      .send(http)
       .logTimed("Gotify notification")
       .void
 end Gotify

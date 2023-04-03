@@ -4,11 +4,11 @@ import cats.syntax.flatMap.*
 import cats.syntax.functor.*
 import cats.syntax.show.*
 import org.legogroup.woof.{*, given}
-import sttp.client3.logging.LogLevel as SttpLogLevel
+import sttp.client4.logging.LogLevel as SttpLogLevel
 
 import scala.concurrent.duration.FiniteDuration
 
-class LogWrapper(using inner: Logger[IO]) extends sttp.client3.logging.Logger[IO]:
+class LogWrapper(using inner: Logger[IO]) extends sttp.client4.logging.Logger[IO]:
   def apply(level: SttpLogLevel, message: => String): IO[Unit] = inner.doLog(matchLevel(level), message)
 
   private def matchLevel(level: SttpLogLevel): LogLevel = level match

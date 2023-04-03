@@ -3,14 +3,14 @@ import cats.effect.std.Random
 import cats.syntax.show.*
 import io.circe.Json
 import org.legogroup.woof.{Logger, given}
-import sttp.client3.*
-import sttp.client3.circe.*
+import sttp.client4.*
+import sttp.client4.circe.*
 import sttp.model.*
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.*
 
-class TooGoodToGo(cache: CacheService)(using HttpBackend, Logger[IO]):
+class TooGoodToGo(cache: CacheService, http: Backend[IO])(using Logger[IO]):
   private val baseUri         = uri"https://apptoogoodtogo.com/api/"
   private val refreshEndpoint = uri"${baseUri}auth/v3/token/refresh"
   private val itemsEndpoint   = uri"${baseUri}item/v7/"
@@ -28,7 +28,7 @@ class TooGoodToGo(cache: CacheService)(using HttpBackend, Logger[IO]):
             .bearer(access.access_token)
             .response(asJson[GetItemsResponse])
             .responseGetRight
-            .send(summon)
+            .send(http)
         )
         .map(_.body.items)
         .flatTap(items => Logger[IO].info(show"Found ${items.length} items."))
@@ -49,7 +49,7 @@ class TooGoodToGo(cache: CacheService)(using HttpBackend, Logger[IO]):
           .response(asJson[RefreshResponse])
           .headers(ua)
           .responseGetRight
-          .send(summon)
+          .send(http)
       )
       .map(r =>
         AccessToken(
