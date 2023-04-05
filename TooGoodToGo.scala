@@ -1,8 +1,6 @@
-import cats.effect.std.Random
+import cats.effect.std.{Env, Random}
 import cats.effect.{Clock, Sync}
-import cats.syntax.flatMap.*
-import cats.syntax.functor.*
-import cats.syntax.show.*
+import cats.syntax.all.*
 import io.circe.Json
 import org.legogroup.woof.{Logger, given}
 import sttp.client4.*
@@ -12,17 +10,17 @@ import sttp.model.*
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.*
 
-class TooGoodToGo[F[_]: Sync: Clock](cache: CacheService[F], http: Backend[F])(using Logger[F]):
+class TooGoodToGo[F[_]: Sync: Clock: Env](cache: CacheService[F], http: Backend[F])(using Logger[F]):
   private val baseUri         = uri"https://apptoogoodtogo.com/api/"
   private val refreshEndpoint = uri"${baseUri}auth/v3/token/refresh"
   private val itemsEndpoint   = uri"${baseUri}item/v7/"
 
   def getItems =
     def retrieveItems(access: AccessToken) =
-      headers()
-        .flatMap(ua =>
+      (headers(), secrets.userId)
+        .flatMapN((ua, userId) =>
           basicRequest
-            .body(GetItemsRequest(secrets.userId))
+            .body(GetItemsRequest(userId))
             .post(itemsEndpoint)
             .cookies(access.cookies.toSeq*)
             .headers(ua)
@@ -43,10 +41,10 @@ class TooGoodToGo[F[_]: Sync: Clock](cache: CacheService[F], http: Backend[F])(u
   end getItems
 
   def getAccessToken: F[AccessToken] =
-    val action = headers()
-      .flatMap(ua =>
+    val action = (headers(), secrets.refreshToken)
+      .flatMapN((ua, refreshToken) =>
         basicRequest
-          .body(RefreshRequest(secrets.refreshToken))
+          .body(RefreshRequest(refreshToken))
           .post(refreshEndpoint)
           .response(asJson[RefreshResponse])
           .headers(ua)

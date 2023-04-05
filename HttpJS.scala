@@ -30,3 +30,13 @@ end NodeFetch
 @js.native
 @JSImport("node-fetch", JSImport.Namespace)
 object NodeFetch extends NodeFetch
+
+def loadConfig[F[_]: Sync]: F[Unit] = Sync[F].delay {
+  Dotenv.config()
+}
+
+@js.native
+@JSImport("dotenv", JSImport.Namespace)
+object Dotenv extends js.Object:
+  def config(): Unit = js.native
+end Dotenv

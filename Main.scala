@@ -1,6 +1,6 @@
 import cats.Parallel
-import cats.effect.std.Random
-import cats.effect.{Async, IOApp}
+import cats.effect.std.{Env, Random}
+import cats.effect.{Async, IO, IOApp}
 import cats.syntax.apply.*
 import cats.syntax.flatMap.*
 import cats.syntax.functor.*
@@ -16,9 +16,12 @@ import sttp.model.HeaderNames
 import scala.concurrent.duration.*
 
 object Main extends IOApp.Simple:
-  val run = makeLogger.flatMap(implicit logger => runF)
+  val run = loadConfig[IO] &> makeLogger.flatMap { implicit logger =>
+    given Env[IO] = Env.make[IO]
+    runF
+  }
 
-  def runF[F[_]: Async: Logger: Parallel] = (wrappedBackend.flatTap(cronitor), redisConnection).parTupled.use {
+  def runF[F[_]: Async: Logger: Parallel: Env] = (wrappedBackend.flatTap(cronitor), redisConnection).parTupled.use {
     (http, redisConnection) =>
 
       val redis  = CacheService(redisConnection)

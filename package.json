@@ -5,15 +5,12 @@
     "clean": "rm -rf dist",
     "prebuild": "npm run clean",
     "build:scala": "mkdir -p dist && scala-cli package --js --output dist/main.js -f .",
-    "build:js": "esbuild --bundle --outfile=bundle.js --target=node16 --format=esm --platform=node --minify ./dist/main.js",
-    "build": "npm run build:scala && npm run build:js",
-    "scp": "scp bundle.js pi:/home/pi/docker/tgtg/index.js",
+    "build": "npm run build:scala",
+    "scp": "scp dist/main.js pi:/home/pi/docker/tgtg/index.js",
     "all": "npm run build && npm run scp"
   },
   "dependencies": {
+    "dotenv": "^16.0.3",
     "node-fetch": "^3.3.1"
-  },
-  "devDependencies": {
-    "esbuild": "^0.17.15"
   }
 }
