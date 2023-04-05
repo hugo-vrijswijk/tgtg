@@ -1,14 +1,13 @@
-import cats.effect.syntax.all.*
-import cats.effect.{IO, Resource}
+import cats.effect.{Async, Resource, Sync}
 import sttp.client4.impl.cats.FetchCatsBackend
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.*
 
-def httpBackend = Resource
-  .pure(FetchCatsBackend[IO]())
+def httpBackend[F[_]: Async] = Resource
+  .pure(FetchCatsBackend[F]())
   .evalTap(_ =>
-    IO {
+    Sync[F].delay {
       val g = js.Dynamic.global.globalThis
 
       if js.isUndefined(g.fetch) then

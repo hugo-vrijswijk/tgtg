@@ -1,5 +1,7 @@
-import cats.effect.IO
 import cats.effect.std.Random
+import cats.effect.{Clock, Sync}
+import cats.syntax.flatMap.*
+import cats.syntax.functor.*
 import cats.syntax.show.*
 import io.circe.Json
 import org.legogroup.woof.{Logger, given}
@@ -10,14 +12,14 @@ import sttp.model.*
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.*
 
-class TooGoodToGo(cache: CacheService, http: Backend[IO])(using Logger[IO]):
+class TooGoodToGo[F[_]: Sync: Clock](cache: CacheService[F], http: Backend[F])(using Logger[F]):
   private val baseUri         = uri"https://apptoogoodtogo.com/api/"
   private val refreshEndpoint = uri"${baseUri}auth/v3/token/refresh"
   private val itemsEndpoint   = uri"${baseUri}item/v7/"
 
   def getItems =
     def retrieveItems(access: AccessToken) =
-      userAgent()
+      headers()
         .flatMap(ua =>
           basicRequest
             .body(GetItemsRequest(secrets.userId))
@@ -31,7 +33,7 @@ class TooGoodToGo(cache: CacheService, http: Backend[IO])(using Logger[IO]):
             .send(http)
         )
         .map(_.body.items)
-        .flatTap(items => Logger[IO].info(show"Found ${items.length} items."))
+        .flatTap(items => Logger[F].info(show"Found ${items.length} items."))
         .logTimed("retrieve items")
 
     for
@@ -40,8 +42,8 @@ class TooGoodToGo(cache: CacheService, http: Backend[IO])(using Logger[IO]):
     yield items
   end getItems
 
-  def getAccessToken: IO[AccessToken] =
-    val action = userAgent()
+  def getAccessToken: F[AccessToken] =
+    val action = headers()
       .flatMap(ua =>
         basicRequest
           .body(RefreshRequest(secrets.refreshToken))
@@ -62,8 +64,8 @@ class TooGoodToGo(cache: CacheService, http: Backend[IO])(using Logger[IO]):
     cache.retrieveOrSet(action, "tgtg-accessToken", a => a.ttl / 4 * 3)
   end getAccessToken
 
-  private def userAgent(): IO[Map[String, String]] = Random
-    .scalaUtilRandom[IO]
+  private def headers(): F[Map[String, String]] = Random
+    .scalaUtilRandom[F]
     .flatMap(_.betweenInt(0, userAgents.length))
     .map(i =>
       Map(

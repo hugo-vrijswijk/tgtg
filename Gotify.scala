@@ -1,9 +1,11 @@
-import cats.effect.IO
+import cats.FlatMap
+import cats.effect.Clock
+import cats.syntax.functor.*
 import org.legogroup.woof.{Logger, given}
 import sttp.client4.*
 import sttp.client4.circe.*
 
-class Gotify(http: Backend[IO])(using Logger[IO]):
+class Gotify[F[_]: FlatMap: Clock](http: Backend[F])(using Logger[F]):
   private val baseUri    = uri"https://gotify.hugovr.dev"
   private val messageUri = uri"$baseUri/message"
 

@@ -5,7 +5,6 @@ import cats.syntax.show.*
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
-import scala.util.CommandLineParser.FromString.given_FromString_Int
 
 extension (duration: FiniteDuration)
   final def toHumanReadable: String =
