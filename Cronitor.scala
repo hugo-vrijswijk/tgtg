@@ -2,7 +2,6 @@ import cats.effect.kernel.Resource.ExitCase
 import cats.effect.{IO, Resource}
 import cats.syntax.option.*
 import sttp.client4.*
-import sttp.client4.circe.*
 import sttp.model.*
 
 def cronitor(http: Backend[IO]): Resource[IO, Unit] =
