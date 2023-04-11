@@ -7,7 +7,7 @@ import org.legogroup.woof.{Logger, given}
 import sttp.client4.*
 import sttp.client4.circe.*
 
-class Gotify[F[_]: FlatMap: Clock: Env](http: Backend[F])(using Logger[F]):
+class Gotify[F[_]: FlatMap: Clock: Env: Logger](http: Backend[F]):
   private val baseUri    = uri"https://gotify.hugovr.dev"
   private val messageUri = uri"$baseUri/message"
 

@@ -3,10 +3,9 @@
   "main": "./index.js",
   "scripts": {
     "clean": "rm -rf dist",
-    "prebuild": "npm run clean",
-    "build:scala": "mkdir -p dist && scala-cli package --js --output dist/main.js -f .",
+    "build:scala": "mkdir -p dist && scala-cli package --js --output dist -f .",
     "build": "npm run build:scala",
-    "scp": "scp dist/main.js pi:/home/pi/docker/tgtg/index.js",
+    "scp": "scp dist/* pi:/home/pi/docker/tgtg/",
     "all": "npm run build && npm run scp"
   },
   "dependencies": {

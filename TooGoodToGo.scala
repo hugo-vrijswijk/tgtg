@@ -10,7 +10,7 @@ import sttp.model.*
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.*
 
-class TooGoodToGo[F[_]: Sync: Clock: Env](cache: CacheService[F], http: Backend[F])(using Logger[F]):
+class TooGoodToGo[F[_]: Sync: Clock: Env: Logger](cache: CacheService[F], http: Backend[F]):
   private val baseUri         = uri"https://apptoogoodtogo.com/api/"
   private val refreshEndpoint = uri"${baseUri}auth/v3/token/refresh"
   private val itemsEndpoint   = uri"${baseUri}item/v7/"

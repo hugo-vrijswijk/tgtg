@@ -55,7 +55,7 @@ object Main extends IOApp.Simple:
 
   def redisConnection[F[_]: Async] = RedisConnection.queued[F].withHost(host"192.168.87.29").build
 
-  def wrappedBackend[F[_]: Async](using Logger[F]) = httpBackend[F].map(
+  def wrappedBackend[F[_]: Async: Logger] = httpBackend[F].map(
     LoggingBackend(
       _,
       new LogWrapper,
