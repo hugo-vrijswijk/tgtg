@@ -1,6 +1,6 @@
 //> using scala "3"
 //> using lib "co.fs2::fs2-core::3.6.1"
-//> using lib "org.typelevel::cats-effect::3.4.8"
+//> using lib "org.typelevel::cats-effect::3.4.9"
 //> using lib "com.softwaremill.sttp.client4::circe::4.0.0-M1"
 //> using lib "com.softwaremill.sttp.client4::cats::4.0.0-M1"
 //> using lib "io.chrisdavenport::rediculous::0.4.0"

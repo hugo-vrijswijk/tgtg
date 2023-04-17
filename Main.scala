@@ -36,7 +36,7 @@ object Main extends IOApp.Simple:
             items.parTraverse_ { item =>
               val key = show"gotify-${item.store.store_name}"
 
-              val notificationTimeout = 40.minutes
+              val notificationTimeout = 60.minutes
 
               redis
                 .get[Boolean](key)
