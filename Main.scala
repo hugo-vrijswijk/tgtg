@@ -1,7 +1,8 @@
 import cats.Parallel
 import cats.effect.std.{Env, Random}
-import cats.effect.{Async, IO, IOApp}
-import cats.syntax.apply.*
+import cats.effect.syntax.monadCancel.*
+import cats.effect.{Async, IO, IOApp, Sync}
+import cats.syntax.all.*
 import cats.syntax.flatMap.*
 import cats.syntax.functor.*
 import cats.syntax.parallel.*
@@ -40,10 +41,15 @@ object Main extends IOApp.Simple:
 
               redis
                 .get[Boolean](key)
-                .map(!_.isDefined)
+                .attempt
+                .map(_.toOption.flatten)
+                .map(!_.contains(true))
                 .ifM(
-                  redis.set(true, key, notificationTimeout) *>
-                    gotify.sendNotification(GotifyMessage(title = item.display_name, message = item.show)),
+                  redis
+                    .set(true, key, notificationTimeout)
+                    .guarantee(
+                      gotify.sendNotification(GotifyMessage(title = item.display_name, message = item.show))
+                    ),
                   Logger[F]
                     .info(
                       show"Found boxes, but notification for '$key' was already sent in the last $notificationTimeout."

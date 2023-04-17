@@ -53,13 +53,13 @@ class CacheService[F[_]](client: RedisConnection[F])(using F: Async[F], log: Log
     F.defer(F.fromTry(summon[Codec[T]].decodeValue(bv.toBitVector).toTry))
 
   def retrieveOrSet[T: Codec](action: F[T], key: String, ttl: T => FiniteDuration): F[T] =
-    get(key).flatMap {
+    get(key).attempt.map(_.toOption.flatten).flatMap {
       case Some(value) =>
         // Cache hit
         log.debug(show"Cache hit for key '$key'").as(value)
       case None =>
         // Cache miss
         log.debug(show"Cache miss for key '$key'") *>
-          action.flatTap(t => set(t, key, ttl(t)))
+          action.flatTap(t => set(t, key, ttl(t)).attempt.void)
     }
 end CacheService
