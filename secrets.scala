@@ -8,5 +8,6 @@ object secrets:
   def gotifyKey[F[_]: Env: Functor]: F[String]    = loadEnv("GOTIFY_KEY")
   def cronitor[F[_]: Env: Functor]: F[String]     = loadEnv("CRONITOR_KEY")
 
-  private def loadEnv[F[_]: Env: Functor](name: String) = Env[F].get(name).map(_.get)
+  private def loadEnv[F[_]: Env: Functor](name: String) =
+    Env[F].get(name).map(_.getOrElse(throw new Exception(s"Missing env var $name")))
 end secrets
