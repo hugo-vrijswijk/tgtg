@@ -16,14 +16,15 @@ jobs:
       - uses: VirtusLab/scala-cli-setup@v1.0
         with:
           power: true
+      - uses: pnpm/action-setup@v2
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-          cache: 'npm'
-      - run: npm ci
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
       - name: Check formatting
         run: scala-cli fmt --check
       - name: Compile
         run: scala-cli compile . --cross
       - name: Package
-        run: npm run build
+        run: pnpm build
