@@ -1,6 +1,8 @@
 {
   "type": "module",
-  "main": "./index.js",
+  "main": "./dist/main.js",
+  "private": true,
+  "packageManager": "pnpm@8.6.3",
   "scripts": {
     "clean": "rm -rf dist",
     "build": "mkdir -p dist && scala-cli package --js --output dist/main.js -f .",
