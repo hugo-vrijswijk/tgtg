@@ -13,7 +13,7 @@ import scala.concurrent.duration.*
 class TooGoodToGo[F[_]: Sync: Clock: Env: Logger](cache: CacheService[F], http: Backend[F]):
   private val baseUri         = uri"https://apptoogoodtogo.com/api/"
   private val refreshEndpoint = uri"${baseUri}auth/v3/token/refresh"
-  private val itemsEndpoint   = uri"${baseUri}item/v7/"
+  private val itemsEndpoint   = uri"${baseUri}item/v8/"
 
   def getItems =
     def retrieveItems(access: AccessToken) =
@@ -69,7 +69,7 @@ class TooGoodToGo[F[_]: Sync: Clock: Env: Logger](cache: CacheService[F], http: 
       Map(
         HeaderNames.Accept         -> "application/json",
         HeaderNames.AcceptEncoding -> "gzip",
-        HeaderNames.AcceptLanguage -> "en-UK",
+        HeaderNames.AcceptLanguage -> "en-GB",
         HeaderNames.ContentType    -> "application/json; charset=utf-8",
         HeaderNames.UserAgent      -> userAgents(i)
       )
