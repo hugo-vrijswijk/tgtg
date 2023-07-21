@@ -47,7 +47,7 @@ jobs:
         with:
           node-version: 18
       - name: Package app
-        run: mkdir -p dist && scala-cli package --platform js --output artifacts/tgtg.js -f .
+        run: mkdir -p artifacts && scala-cli package --platform js --output artifacts/tgtg.js -f .
       # - uses: actions/upload-artifact@v3
       #   with:
       #     name: launchers
