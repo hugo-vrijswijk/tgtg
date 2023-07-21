@@ -3,15 +3,13 @@
 
 import scala.util.Properties
 
-val platformSuffix: String = {
-  val os =
-    if Properties.isWin then "pc-win32"
-    else if Properties.isLinux then "pc-linux"
-    else if Properties.isMac then "apple-darwin"
-    else sys.error(s"Unrecognized OS: ${sys.props("os.name")}")
-  os
-}
-val appName = "tgtg"
+val platformSuffix: String =
+  if Properties.isWin then "pc-win32"
+  else if Properties.isLinux then "pc-linux"
+  else if Properties.isMac then "apple-darwin"
+  else sys.error(s"Unrecognized OS: ${sys.props("os.name")}")
+
+val appName       = "tgtg"
 val artifactsPath = os.Path("artifacts", os.pwd)
 val destPath =
   if Properties.isWin then artifactsPath / s"$appName-$platformSuffix.exe"
