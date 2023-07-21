@@ -18,13 +18,10 @@ jobs:
         with:
           fetch-depth: 0
       - uses: coursier/cache-action@v6
-      - uses: actions/setup-java@v3
-        with:
-          distribution: "temurin"
-          java-version: 17
       - uses: VirtusLab/scala-cli-setup@v1
         with:
           power: true
+          jvm: "temurin:17"
       - name: Package app
         run: scala-cli .github/scripts/package.sc
       # - uses: actions/upload-artifact@v3
@@ -42,13 +39,10 @@ jobs:
         with:
           fetch-depth: 0
       - uses: coursier/cache-action@v6
-      - uses: actions/setup-java@v3
-        with:
-          distribution: "temurin"
-          java-version: 17
       - uses: VirtusLab/scala-cli-setup@v1
         with:
           power: true
+          jvm: "temurin:17"
       - uses: actions/setup-node@v3
         with:
           node-version: 18
