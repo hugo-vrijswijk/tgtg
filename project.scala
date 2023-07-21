@@ -5,7 +5,6 @@
 //> using lib "io.chrisdavenport::rediculous::0.5.0"
 //> using lib "io.circe::circe-core::0.14.5"
 //> using lib "io.circe::circe-parser::0.14.5"
-//> using lib "org.scodec::scodec-core::2.2.1"
 //> using lib "org.legogroup::woof-core::0.6.0"
 //> using lib com.monovore::decline-effect::2.4.1
 
@@ -17,3 +16,4 @@
 
 //> using option -Wunused:all
 //> using option -Wvalue-discard
+//> using option -deprecation

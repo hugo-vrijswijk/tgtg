@@ -1,6 +1,7 @@
 import cats.syntax.all.*
-import com.comcast.ip4s.Host
+import com.comcast.ip4s.{Host, *}
 import com.monovore.decline.{Argument, Opts}
+import org.legogroup.woof.LogLevel
 import sttp.model.Uri
 
 opaque type TgtgToken <: String = String
@@ -17,13 +18,20 @@ object CronitorToken:
 
 case class TgtgConfig(refreshToken: TgtgToken, userId: String)
 case class GotifyConfig(token: GotifyToken, url: Uri)
+case class RedisConfig(host: Host)
 
-case class Config(tgtg: TgtgConfig, gotify: GotifyConfig, cronitor: Option[CronitorToken])
+case class Config(
+    tgtg: TgtgConfig,
+    gotify: GotifyConfig,
+    cronitor: Option[CronitorToken],
+    redis: Option[RedisConfig],
+    log: LogLevel
+)
 
 object Config:
 
   import allOpts.*
-  val opts = (tgtgConfig, gotify, cronitor).mapN(Config.apply)
+  val opts = (tgtgConfig, gotify, cronitor, redis, log).mapN(Config.apply)
 
   private object allOpts:
     private given Argument[Uri] = Argument.from("url")(
@@ -36,6 +44,14 @@ object Config:
     )
     private given Argument[Host] =
       Argument.from("host")(str => Host.fromString(str).toRight(s"Invalid host $str").toValidatedNel)
+
+    private given Argument[LogLevel] = Argument.from("level")(_.toLowerCase match
+      case "debug" => LogLevel.Debug.validNel
+      case "info"  => LogLevel.Info.validNel
+      case "warn"  => LogLevel.Warn.validNel
+      case "error" => LogLevel.Error.validNel
+      case other   => s"Invalid log level $other. Should be one of 'debug', 'info', 'warn' or 'error'".invalidNel
+    )
 
     val refreshHelp =
       "Refresh token for TooGoodToGo. Get it using https://github.com/ahivert/tgtg-python (coming soon in this CLI)"
@@ -61,9 +77,16 @@ object Config:
 
     val tgtgConfig = (refreshToken, userId).mapN(TgtgConfig.apply)
 
-    val redisHostHelp = "Redis host (for storing auth and notification cache)"
-    val redisHost = (Opts.option[Host]("redis-host", "Redis host") orElse Opts.env[Host]("REDIS_HOST", "Redis host"))
-      .withDefault("localhost")
+    val redisHostHelp = "Redis host (for storing auth and notification cache). Uses a local cache.json file if not set"
+    val redisHost = Opts.option[Host]("redis-host", redisHostHelp) orElse Opts.env[Host]("REDIS_HOST", redisHostHelp)
 
+    val redis = redisHost.map(RedisConfig.apply).orNone
+
+    val logHelp = "Set the log level (debug, info, warn, error)"
+    val log = (
+      Opts.flag("debug", "enable debug logging for more information", "d").as(LogLevel.Debug) orElse
+        Opts.option[LogLevel]("log-level", logHelp, "l") orElse Opts.env[LogLevel]("LOG_LEVEL", logHelp)
+    ).withDefault(LogLevel.Info)
   end allOpts
+
 end Config

@@ -2,7 +2,6 @@ import cats.Parallel
 import cats.effect.syntax.all.*
 import cats.effect.{Async, ExitCode, IO, Resource}
 import cats.syntax.all.*
-import com.comcast.ip4s.*
 import com.monovore.decline.Opts
 import com.monovore.decline.effect.CommandIOApp
 import io.chrisdavenport.rediculous.RedisConnection
@@ -15,7 +14,7 @@ import scala.concurrent.duration.*
 object Main extends CommandIOApp("tgtg", "TooGoodToGo notifier"):
 
   override def main: Opts[IO[ExitCode]] = Config.opts.map(config =>
-    makeLogger
+    makeLogger(config.log)
       .flatMap { implicit logger =>
         Main.runF[IO](config)
       }
@@ -23,13 +22,9 @@ object Main extends CommandIOApp("tgtg", "TooGoodToGo notifier"):
   )
 
   def runF[F[_]: Async: Logger: Parallel](config: Config) =
-    (
-      wrappedBackend.flatTap(b => config.cronitor.fold(Logger[F].info("Cronitor disabled").toResource)(cronitor(b, _))),
-      redisConnection
-    ).parTupled.use { (http, redisConnection) =>
+    (mkHttpBackend(config.cronitor), mkCache(config.redis)).parTupled.use { (http, cache) =>
 
-      val redis  = CacheService(redisConnection)
-      val tgtg   = TooGoodToGo(redis, http, config.tgtg)
+      val tgtg   = TooGoodToGo(cache, http, config.tgtg)
       val gotify = Gotify(http, config.gotify)
 
       tgtg.getItems
@@ -42,13 +37,13 @@ object Main extends CommandIOApp("tgtg", "TooGoodToGo notifier"):
 
               val notificationTimeout = 60.minutes
 
-              redis
+              cache
                 .get[Boolean](key)
                 .attempt
                 .map(_.toOption.flatten)
                 .map(!_.contains(true))
                 .ifM(
-                  redis
+                  cache
                     .set(true, key, notificationTimeout)
                     .guarantee(
                       gotify.sendNotification(GotifyMessage(title = item.display_name, message = item.show))
@@ -62,7 +57,17 @@ object Main extends CommandIOApp("tgtg", "TooGoodToGo notifier"):
         }
     }
 
-  def redisConnection[F[_]: Async] = RedisConnection.queued[F].withHost(host"192.168.87.29").build
+  def mkHttpBackend[F[_]: Async: Logger](config: Option[CronitorToken]) =
+    wrappedBackend.flatTap(b => config.fold(Logger[F].info("Cronitor disabled").toResource)(cronitor(b, _)))
+
+  def mkCache[F[_]: Async: Logger](config: Option[RedisConfig]): Resource[F, CacheService[F]] = config match
+    case None => Resource.eval(Logger[F].info("Using cache.json")) *> FileCacheService.create
+    case Some(config) =>
+      Resource.eval(Logger[F].info("Using Redis cache")) *> RedisConnection
+        .queued[F]
+        .withHost(config.host)
+        .build
+        .map(new RedisCacheService(_))
 
   def wrappedBackend[F[_]: Async: Logger] = httpBackend[F].map(
     LoggingBackend(

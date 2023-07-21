@@ -21,9 +21,9 @@ class LogWrapper[F[_]](using inner: Logger[F]) extends sttp.client4.logging.Logg
 
 end LogWrapper
 
-def makeLogger: IO[Logger[IO]] =
+def makeLogger(logLevel: LogLevel): IO[Logger[IO]] =
   given Printer = ColorPrinter()
-  given Filter  = Filter.everything
+  given Filter  = Filter.atLeastLevel(logLevel)
   DefaultLogger.makeIo(Output.fromConsole[IO])
 
 extension [F[_]: FlatMap: Clock, T](fa: F[T])

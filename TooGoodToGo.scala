@@ -58,7 +58,7 @@ class TooGoodToGo[F[_]: Sync: Clock: Logger](cache: CacheService[F], http: Backe
         )
       )
 
-    cache.retrieveOrSet(action, "tgtg-accessToken", a => a.ttl / 4 * 3)
+    cache.retrieveOrSet(action, s"tgtg-accessToken/${config.userId}", a => a.ttl / 4 * 3)
   end getAccessToken
 
   private def headers(): F[Map[String, String]] = Random

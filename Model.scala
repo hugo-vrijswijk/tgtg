@@ -1,6 +1,5 @@
 import cats.syntax.show.*
-import io.circe.{Decoder, Encoder, JsonObject}
-import scodec.{Attempt, Codec}
+import io.circe.{Codec, Decoder, Encoder, JsonObject}
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
@@ -28,7 +27,7 @@ case class RefreshRequest(refresh_token: String) derives Encoder.AsObject
 case class RefreshResponse(access_token: String, refresh_token: String, access_token_ttl_seconds: Long) derives Decoder
 
 type Cookies = List[(String, String)]
-case class AccessToken(cookies: Cookies, access_token: String, ttl: FiniteDuration) derives Codec
+case class AccessToken(cookies: Cookies, access_token: String, ttl: FiniteDuration) derives Codec.AsObject
 
 case class GotifyMessage(message: String, title: String, priority: Int = 8) derives Encoder.AsObject
 
@@ -44,8 +43,8 @@ case class Price(minor_units: Int):
 
 case class Store(store_name: String)
 
-given Codec[FiniteDuration] = summon[Codec[Long]]
-  .exmap[FiniteDuration](
-    l => Attempt.successful(FiniteDuration(l, TimeUnit.MILLISECONDS)),
-    l => Attempt.successful(l.toMillis)
+given Codec[FiniteDuration] =
+  Codec.from(
+    Decoder.decodeLong.map(FiniteDuration(_, TimeUnit.MILLISECONDS)),
+    Encoder.encodeLong.contramap(_.toMillis)
   )

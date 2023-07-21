@@ -23,7 +23,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Check formatting
         run: scala-cli fmt --check
-      - name: Compile
-        run: scala-cli compile . --cross
+      - name: Compile JVM
+        run: scala-cli compile . --platform jvm
+      - name: Compile JVM
+        run: scala-cli compile . --platform js
       - name: Package
         run: pnpm build

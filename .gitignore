@@ -8,3 +8,4 @@ node_modules/
 *.js
 *.js.map
 .env
+*.build_artifacts.txt

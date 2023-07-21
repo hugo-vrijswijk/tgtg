@@ -5,7 +5,7 @@
   "packageManager": "pnpm@8.6.3",
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "mkdir -p dist && scala-cli package --js --output dist/main.js -f .",
+    "build": "mkdir -p dist && scala-cli package --platform js --output dist/main.js -f .",
     "scp": "scp dist/* pi:/home/pi/docker/tgtg/",
     "all": "npm run build && npm run scp"
   },
