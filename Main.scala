@@ -1,33 +1,36 @@
 import cats.Parallel
-import cats.effect.std.{Env, Random}
-import cats.effect.syntax.monadCancel.*
-import cats.effect.{Async, IO, IOApp, Sync}
+import cats.effect.syntax.all.*
+import cats.effect.{Async, ExitCode, IO, Resource}
 import cats.syntax.all.*
-import cats.syntax.flatMap.*
-import cats.syntax.functor.*
-import cats.syntax.parallel.*
-import cats.syntax.show.*
 import com.comcast.ip4s.*
+import com.monovore.decline.Opts
+import com.monovore.decline.effect.CommandIOApp
 import io.chrisdavenport.rediculous.RedisConnection
 import org.legogroup.woof.{Logger, given}
-import sttp.client4.Backend
 import sttp.client4.logging.{LogConfig, LoggingBackend}
 import sttp.model.HeaderNames
 
 import scala.concurrent.duration.*
 
-object Main extends IOApp.Simple:
-  val run = loadConfig[IO] &> makeLogger.flatMap { implicit logger =>
-    given Env[IO] = Env.make[IO]
-    runF
-  }
+object Main extends CommandIOApp("tgtg", "TooGoodToGo notifier"):
 
-  def runF[F[_]: Async: Logger: Parallel: Env] = (wrappedBackend.flatTap(cronitor), redisConnection).parTupled.use {
-    (http, redisConnection) =>
+  override def main: Opts[IO[ExitCode]] = Config.opts.map(config =>
+    makeLogger
+      .flatMap { implicit logger =>
+        Main.runF[IO](config)
+      }
+      .as(ExitCode.Success)
+  )
+
+  def runF[F[_]: Async: Logger: Parallel](config: Config) =
+    (
+      wrappedBackend.flatTap(b => config.cronitor.fold(Logger[F].info("Cronitor disabled").toResource)(cronitor(b, _))),
+      redisConnection
+    ).parTupled.use { (http, redisConnection) =>
 
       val redis  = CacheService(redisConnection)
-      val tgtg   = TooGoodToGo(redis, http)
-      val gotify = Gotify(http)
+      val tgtg   = TooGoodToGo(redis, http, config.tgtg)
+      val gotify = Gotify(http, config.gotify)
 
       tgtg.getItems
         .map(_.filter(_.items_available > 0))
@@ -57,7 +60,7 @@ object Main extends IOApp.Simple:
                 )
             }
         }
-  }
+    }
 
   def redisConnection[F[_]: Async] = RedisConnection.queued[F].withHost(host"192.168.87.29").build
 

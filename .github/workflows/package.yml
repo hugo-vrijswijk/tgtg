@@ -1,0 +1,32 @@
+name: Scala CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  package:
+    runs-on: ${{ matrix.OS }}
+    strategy:
+      fail-fast: true
+      matrix:
+        OS: ["ubuntu-latest", "windows-latest", "macos-latest"]
+        java-version: ["17"]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: coursier/cache-action@v6
+      - uses: VirtusLab/scala-cli-setup@v1
+        with:
+          power: true
+      - name: Package app
+        run: scala-cli .github/scripts/package.sc
+      - uses: actions/upload-artifact@v3
+        with:
+          name: launchers
+          path: artifacts
+          if-no-files-found: error
+          retention-days: 2

@@ -1,6 +1,6 @@
-import cats.data.Chain
+import cats.Show
+import cats.effect.Async
 import cats.effect.instances.spawn.*
-import cats.effect.{Async, Sync}
 import cats.syntax.applicativeError.*
 import cats.syntax.apply.*
 import cats.syntax.flatMap.*
@@ -10,7 +10,6 @@ import cats.syntax.option.*
 import cats.syntax.parallel.*
 import cats.syntax.show.*
 import cats.syntax.traverse.*
-import cats.{Parallel, Show}
 import io.chrisdavenport.rediculous.*
 import org.legogroup.woof.{Logger, given}
 import scodec.Codec

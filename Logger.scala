@@ -30,5 +30,5 @@ extension [F[_]: FlatMap: Clock, T](fa: F[T])
   def logTimed(msg: String)(using Logger[F], LogInfo): F[T] =
     Clock[F]
       .timed(fa)
-      .flatTap((time, r) => Logger[F].debug(show"Completed $msg in $time"))
+      .flatTap((time, _) => Logger[F].debug(show"Completed $msg in $time"))
       .map(_._2)
