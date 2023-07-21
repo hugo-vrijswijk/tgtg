@@ -25,5 +25,3 @@ jobs:
         run: scala-cli compile . --platform jvm
       - name: Compile JVM
         run: scala-cli compile . --platform js
-      - name: Package
-        run: pnpm build
