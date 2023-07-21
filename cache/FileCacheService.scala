@@ -1,7 +1,7 @@
 import FileCacheService.Cache
 import cats.effect.{Async, Clock, Ref, Resource}
 import cats.syntax.all.*
-import cats.{Functor, MonadThrow}
+import cats.{Applicative, Functor, MonadThrow}
 import fs2.Stream
 import fs2.io.file.{Files, Flags, Path}
 import io.circe.parser.decode
@@ -38,14 +38,15 @@ object FileCacheService:
           now  <- Clock[F].instant
           data <- ref.get
           updatedData = data.filter(filterExpired(now))
-          _ <- writeCacheData(updatedData)
-          _ <- Logger[F].info(show"Cache written to disk (cache.json). Cache contains ${updatedData.size} entries.")
+
+          _ <- Applicative[F].whenA(cache != updatedData)(
+            writeCacheData(updatedData) *> Logger[F].info(
+              show"Cache written to disk (cache.json). Cache contains ${updatedData.size} entries."
+            )
+          )
         yield ()
       )
     yield new FileCacheService[F](ref)
-    end for
-
-  end create
 
   private def filterExpired(now: Instant) = (entry: (Any, (Instant, Any))) =>
     val (ttl, _) = entry._2
@@ -68,6 +69,7 @@ object FileCacheService:
     .through(Files[F].writeAll(Path("cache.json"), Flags.Write))
     .compile
     .drain
+
 end FileCacheService
 
 extension [F[_]: Functor](clock: Clock[F])
