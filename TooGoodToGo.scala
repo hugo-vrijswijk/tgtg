@@ -97,12 +97,7 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
                 .send(http)
                 .logTimed("poll")
                 .flatMap: response =>
-                  if response.code == StatusCode.Accepted then
-                    log
-                      .info(
-                        "Check your mailbox on PC to continue... (Mailbox on mobile won't work, if you have installed tgtg app.)\n"
-                      )
-                      .as(none)
+                  if response.code == StatusCode.Accepted then IO.none
                   else response.body.pure
 
               def poll(triesLeft: Int): IO[TgtgConfig] =
@@ -115,8 +110,10 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
                     case Some(value) =>
                       TgtgConfig(refreshToken = value.refresh_token, userId = value.startup_data.user.user_id).pure
                   }
-
-              poll(maxPollRetries)
+              log.info(
+                "Check your mailbox on PC to continue... (Mailbox on mobile won't work, if you have installed tgtg app.)\n"
+              ) *>
+                poll(maxPollRetries)
             case StatusCode.TooManyRequests => IO.raiseError(new Exception("Too many requests. Try again later."))
             case _: StatusCode              => IO.raiseError(new Exception(show"Unexpected response: ${r.show()}"))
 

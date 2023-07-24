@@ -85,6 +85,7 @@ jobs:
         run: |
           tags="${{ steps.meta.outputs.tags }}"
           for tag in $tags; do
+            echo "Pushing $tag"
             docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} $tag
             docker push $tag
           done
