@@ -31,7 +31,6 @@ case class RefreshRequest(refresh_token: String) derives Encoder.AsObject
 case class RefreshResponse(
     access_token: String,
     refresh_token: TgtgToken,
-    user_id: UserId,
     access_token_ttl_seconds: Long
 ) derives Decoder
 

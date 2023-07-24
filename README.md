@@ -4,9 +4,9 @@
 
 Never miss a TooGoodToGo box again!
 
-Simple application that will notify you when any stores in your TooGoodToGo favourites has a box available. It will check your favourite stores and send a notification to Gotify (more notification services coming soon) when a box is available.
+Simple application that will notify you when any store in your TooGoodToGo favourites has a box available. It will check your favourite stores and send a notification to Gotify (more notification services coming soon) when a box is available.
 
-Can be set up to run once (for example with a cronjob) or to run continuously (with a configurable interval).
+It can be set up to run once (for example, with a cronjob) or to run continuously (with a configurable interval).
 
 ## First time usage
 

@@ -18,13 +18,13 @@ jobs:
           # Replace "example" with the name your binary
           - os: macOS-latest
             uploaded_filename: tgtg-x86_64-apple-darwin
-            local_path: artifacts
+            local_path: artifacts/tgtg
           - os: ubuntu-latest
             uploaded_filename: tgtg-x86_64-pc-linux
-            local_path: artifacts
+            local_path: artifacts/tgtg
           - os: windows-latest
             uploaded_filename: tgtg-x86_64-pc-win32.exe
-            local_path: artifacts
+            local_path: artifacts/tgtg.exe
     steps:
       - uses: actions/checkout@v3
         with:
@@ -35,7 +35,7 @@ jobs:
           power: true
           jvm: "temurin:17"
       - name: Package app
-        run: scala-cli package . -o "${{ matrix.local_path }}/${{ matrix.uploaded_filename }}" --native-image
+        run: scala-cli package . -o "${{ matrix.local_path }}" --native-image
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.uploaded_filename }}
@@ -44,14 +44,9 @@ jobs:
           retention-days: 2
       - name: Upload release
         if: github.event_name == 'release'
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ${{ matrix.local_path }}
-          asset_name: ${{ matrix.uploaded_filename }}
-          asset_content_type: application/zip
+          files: artifacts/{*,!*.txt}
   package-docker:
     # if: github.event_name == 'release'
     permissions:
@@ -83,7 +78,11 @@ jobs:
           jvm: "temurin:17"
       - name: Package app
         run: scala-cli package . -o artifacts/tgtg --docker --docker-image-repository ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      # loop through steps.meta.outputs.tags array and run `docker tag` and `docker push` for each tag
       - name: Tag Docker image
-        run: docker tag ${{ env.REGISTRY}}/${{ env.IMAGE_NAME}} ${{ steps.meta.outputs.tags }}
-      - name: Push Docker image
-        run: docker push ${{ steps.meta.outputs.tags }}
+        run: |
+          tags="${{ steps.meta.outputs.tags }}"
+          for tag in $tags; do
+            docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} $tag
+            docker push $tag
+          done
