@@ -14,7 +14,7 @@ import tgtg.notification.*
 object Deps:
 
   def mkLogger(logLevel: LogLevel): IO[Logger[IO]] =
-    given Printer = ColorPrinter()
+    given Printer = NoPostfixPrinter(ColorPrinter())
     given Filter  = Filter.atLeastLevel(logLevel)
     DefaultLogger.makeIo(Output.fromConsole[IO])
 
@@ -44,3 +44,20 @@ object Deps:
         .map(RedisCacheService(_))
 
 end Deps
+
+/** Custom color printer that removes the postfix from the log info.
+  */
+final class NoPostfixPrinter(inner: Printer) extends Printer:
+
+  class NoPostfixLogInfo(inner: LogInfo) extends LogInfo(inner.enclosingClass, inner.fileName, inner.lineNumber):
+    override def postfix: String = ""
+    override def prefix: String  = inner.prefix + s":${lineNumber + 1}"
+
+  override def toPrint(
+      epochMillis: EpochMillis,
+      level: LogLevel,
+      info: LogInfo,
+      message: String,
+      context: List[(String, String)]
+  ): String = inner.toPrint(epochMillis, level, NoPostfixLogInfo(info), message, context)
+end NoPostfixPrinter
