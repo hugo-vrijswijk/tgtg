@@ -10,6 +10,8 @@ on:
 
 jobs:
   package:
+    permissions:
+      contents: write
     runs-on: ${{ matrix.OS }}
     strategy:
       matrix:
@@ -18,13 +20,13 @@ jobs:
           # Replace "example" with the name your binary
           - os: macOS-latest
             uploaded_filename: tgtg-x86_64-apple-darwin
-            local_path: artifacts/tgtg
+            local_path: artifacts/tgtg-x86_64-apple-darwin
           - os: ubuntu-latest
             uploaded_filename: tgtg-x86_64-pc-linux
-            local_path: artifacts/tgtg
+            local_path: artifacts/tgtg-x86_64-pc-linux
           - os: windows-latest
             uploaded_filename: tgtg-x86_64-pc-win32.exe
-            local_path: artifacts/tgtg.exe
+            local_path: artifacts/tgtg-x86_64-pc-win32.exe
     steps:
       - uses: actions/checkout@v3
         with:
@@ -46,7 +48,7 @@ jobs:
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v1
         with:
-          files: artifacts/{*,!*.txt}
+          files: ${{ matrix.local_path }}
   package-docker:
     # if: github.event_name == 'release'
     permissions:
