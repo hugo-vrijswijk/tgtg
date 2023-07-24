@@ -131,9 +131,9 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
     )
 
   private def userAgents = List(
-    "TGTG/23.3.11 Dalvik/2.1.0 (Linux; U; Android 9; Nexus 5 Build/M4B30Z)",
-    "TGTG/23.3.11 Dalvik/2.1.0 (Linux; U; Android 10; SM-G935F Build/NRD90M)",
-    "TGTG/23.3.11 Dalvik/2.1.0 (Linux; Android 12; SM-G920V Build/MMB29K)"
+    "TGTG/23.6.11 Dalvik/2.1.0 (Linux; U; Android 9; Nexus 5 Build/M4B30Z)",
+    "TGTG/23.6.11 Dalvik/2.1.0 (Linux; U; Android 10; SM-G935F Build/NRD90M)",
+    "TGTG/23.6.11 Dalvik/2.1.0 (Linux; Android 12; SM-G920V Build/MMB29K)"
   )
 
 end TooGoodToGo

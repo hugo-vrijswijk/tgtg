@@ -73,19 +73,10 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      - uses: coursier/cache-action@v6
-      - uses: VirtusLab/scala-cli-setup@v1
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
         with:
-          power: true
-          jvm: "temurin:17"
-      - name: Package app
-        run: scala-cli package . -o artifacts/tgtg --docker --docker-image-repository ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      # loop through steps.meta.outputs.tags array and run `docker tag` and `docker push` for each tag
-      - name: Tag Docker image
-        run: |
-          tags="${{ steps.meta.outputs.tags }}"
-          for tag in $tags; do
-            echo "Pushing $tag"
-            docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} $tag
-            docker push $tag
-          done
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
