@@ -1,5 +1,7 @@
 //> using scala "3"
 //> using lib "org.typelevel::cats-effect::3.5.1"
+//> using lib co.fs2::fs2-core::3.7.0
+//> using lib co.fs2::fs2-io::3.7.0
 //> using lib "com.softwaremill.sttp.client4::circe::4.0.0-M2"
 //> using lib "com.softwaremill.sttp.client4::cats::4.0.0-M2"
 //> using lib "io.chrisdavenport::rediculous::0.5.0"

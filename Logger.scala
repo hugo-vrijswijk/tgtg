@@ -1,11 +1,15 @@
 package tgtg
 
+import cats.effect.kernel.Resource
 import cats.effect.{Clock, ExitCode, IO}
 import cats.syntax.all.*
-import org.legogroup.woof.{*, given}
+import org.legogroup.woof.*
 import sttp.client4.logging.LogLevel as SttpLogLevel
 
+import java.io.{PrintWriter, StringWriter}
+
 class LogWrapper(using inner: Logger[IO]) extends sttp.client4.logging.Logger[IO]:
+  import org.legogroup.woof.given
   def apply(level: SttpLogLevel, message: => String): IO[Unit] = inner.doLog(matchLevel(level), message)
 
   private def matchLevel(level: SttpLogLevel): LogLevel = level match
@@ -29,8 +33,16 @@ extension [T](fa: IO[T])
 
   def handleErrorWithLog(using log: Logger[IO], info: LogInfo): IO[T | ExitCode] =
     fa.handleErrorWith(t =>
-      Logger[IO].error(t.getMessage()) *>
+      debugLogStacktrace(t) *>
+        Logger[IO].error(t.getMessage()) *>
         IO.whenA(t.getCause() != null)(Logger[IO].error(show"Caused by: ${t.getCause()}"))
           .as(ExitCode.Error)
     )
+
+  private def debugLogStacktrace(t: Throwable)(using Logger[IO], LogInfo) = Resource
+    .fromAutoCloseable(IO(new StringWriter()))
+    .flatMap(sw => Resource.fromAutoCloseable(IO(new PrintWriter(sw))).tupleLeft(sw))
+    .use: (sw, pw) =>
+      IO(t.printStackTrace(pw)) *> IO(sw.toString()).flatMap(Logger[IO].debug(_))
+
 end extension
