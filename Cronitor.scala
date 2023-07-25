@@ -19,9 +19,9 @@ def cronitor(http: Backend[IO], cronitorToken: CronitorToken): Resource[IO, Unit
 
   end reportState
 
-  Resource.makeCase(reportState("run")) {
+  Resource.makeCase(reportState("run")):
     case (_, ExitCase.Succeeded)  => reportState("complete")
     case (_, ExitCase.Canceled)   => reportState("fail", "Canceled".some)
     case (_, ExitCase.Errored(e)) => reportState("fail", e.toString().some)
-  }
+
 end cronitor

@@ -34,7 +34,7 @@ case class RefreshResponse(
     access_token_ttl_seconds: Long
 ) derives Decoder
 
-type Cookies = List[(String, String)]
+type Cookies = Seq[(String, String)]
 case class AccessToken(cookies: Cookies, access_token: String, ttl: FiniteDuration) derives Codec.AsObject
 
 case class GetItemsResponse(items: Seq[ItemWrapper]) derives Decoder

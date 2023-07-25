@@ -46,7 +46,7 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
 
   def getAccessToken(cache: CacheService, config: TgtgConfig): IO[AccessToken] =
     val action = headers()
-      .flatMap(ua =>
+      .flatMap: ua =>
         basicRequest
           .body(RefreshRequest(config.refreshToken))
           .post(refreshEndpoint)
@@ -54,10 +54,12 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
           .headers(ua)
           .responseGetRight
           .send(http)
-      )
       .map(r =>
         AccessToken(
-          r.cookies.collect { case Right(c) => c }.map(c => (c.name, c.value)).toList,
+          r.cookies
+            .collect:
+              case Right(c) => c
+            .map(c => (c.name, c.value)),
           r.body.access_token,
           ttl = FiniteDuration(r.body.access_token_ttl_seconds, TimeUnit.SECONDS)
         )

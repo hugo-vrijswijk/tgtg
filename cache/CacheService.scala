@@ -14,13 +14,14 @@ trait CacheService(using log: Logger[IO]):
   def set[T: Encoder](value: T, key: String, ttl: FiniteDuration): IO[Unit]
 
   def retrieveOrSet[T: Codec](action: IO[T], key: String, ttl: T => FiniteDuration): IO[T] =
-    get(key).attempt.map(_.toOption.flatten).flatMap {
-      case Some(value) =>
-        // Cache hit
-        log.debug(show"Cache hit for key '$key'").as(value)
-      case None =>
-        // Cache miss
-        log.debug(show"Cache miss for key '$key'") *>
-          action.flatTap(t => set(t, key, ttl(t)).attempt.void)
-    }
+    get(key).attempt
+      .map(_.toOption.flatten)
+      .flatMap:
+        case Some(value) =>
+          // Cache hit
+          log.debug(show"Cache hit for key '$key'").as(value)
+        case None =>
+          // Cache miss
+          log.debug(show"Cache miss for key '$key'") *>
+            action.flatTap(t => set(t, key, ttl(t)).attempt.void)
 end CacheService

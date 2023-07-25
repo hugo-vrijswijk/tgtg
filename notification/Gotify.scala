@@ -20,4 +20,5 @@ class Gotify(http: Backend[IO], config: NotifyConfig.Gotify)(using Logger[IO]) e
       .void
 
   case class GotifyMessage(message: String, title: String, priority: Int = 8) derives Encoder.AsObject
+
 end Gotify
