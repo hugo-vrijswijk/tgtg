@@ -1,10 +1,6 @@
-FROM virtuslab/scala-cli as builder
-WORKDIR /app
-COPY . .
-RUN scala-cli --power package . --native-image -o tgtg
-RUN chmod +x ./tgtg
+FROM debian:12-slim
 
-FROM scratch
-WORKDIR /app
-COPY --from=builder /app/tgtg /app/tgtg
-ENTRYPOINT ["/app/tgtg"]
+ARG LOCAL_PATH
+EXPOSE 8080
+COPY ${LOCAL_PATH} tgtg 
+ENTRYPOINT ["/tgtg"]
