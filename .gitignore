@@ -6,3 +6,4 @@ target/
 .scala-build/
 *.build_artifacts.txt
 artifacts
+cache.json

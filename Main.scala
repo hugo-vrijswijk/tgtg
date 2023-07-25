@@ -39,8 +39,8 @@ object Main extends CommandIOApp("tgtg", "TooGoodToGo notifier for your favourit
             val main = new Main(config)
             config.server
               .fold(main.run)(main.loop(_).guarantee(log.info("Shutting down") *> log.info("Bye!")))
-              .handleErrorWithLog
               .as(ExitCode.Success)
+              .handleErrorWithLog
         end match
 
 end Main
