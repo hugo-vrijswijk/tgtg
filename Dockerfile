@@ -1,6 +1,10 @@
 FROM debian:12-slim
 
 ARG LOCAL_PATH
-EXPOSE 8080
+
+ENV TINI_VERSION v0.19.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN chmod +x /tini
+
 COPY ${LOCAL_PATH} tgtg 
-ENTRYPOINT ["/tgtg"]
+ENTRYPOINT ["/tini", "--", "/tgtg"]
