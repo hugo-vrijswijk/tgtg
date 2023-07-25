@@ -1,10 +1,10 @@
-FROM virtuslab/scala-cli as builder
-WORKDIR /app
-COPY . .
-RUN scala-cli --power package . --native-image -o tgtg
-RUN chmod +x ./tgtg
+FROM debian:12-slim
 
-FROM scratch
-WORKDIR /app
-COPY --from=builder /app/tgtg /app/tgtg
-ENTRYPOINT ["/app/tgtg"]
+ARG LOCAL_PATH
+
+ENV TINI_VERSION v0.19.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN chmod +x /tini
+
+COPY ${LOCAL_PATH} tgtg 
+ENTRYPOINT ["/tini", "--", "/tgtg"]

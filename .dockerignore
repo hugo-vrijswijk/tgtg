@@ -1,0 +1,7 @@
+target/
+.bsp/
+.metals/
+.bloop/
+.vscode/launch.json
+.scala-build/
+*.build_artifacts.txt
