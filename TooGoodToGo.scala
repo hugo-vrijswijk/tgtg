@@ -35,13 +35,10 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
             .send(http)
         )
         .map(_.body.items)
-        .flatTap(items => log.info(show"Found ${items.length} items."))
-        .logTimed("retrieve items")
+        .flatTap(items => log.debug(show"Found ${items.length} stores."))
+        .logTimed("retrieve stores")
 
-    for
-      token <- getAccessToken(cache, config)
-      items <- retrieveItems(token)
-    yield items
+    getAccessToken(cache, config).flatMap(retrieveItems)
   end getItems
 
   def getAccessToken(cache: CacheService, config: TgtgConfig): IO[AccessToken] =

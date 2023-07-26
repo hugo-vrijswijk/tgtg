@@ -67,9 +67,9 @@ final class Main(config: Config)(using log: Logger[IO]):
 
       tgtg
         .getItems(cache, config.tgtg)
-        .map(_.filter(_.items_available > 0))
-        .flatMap: items =>
-          if items.isEmpty then log.info("No boxes to notify for.")
+        .flatMap: stores =>
+          val items = stores.filter(_.items_available > 0)
+          if items.isEmpty then log.info(show"No boxes to notify for (from ${stores.length} stores).")
           else
             items.parTraverse_ : item =>
               val key = CacheKey(s"gotify-${item.store.store_name}")

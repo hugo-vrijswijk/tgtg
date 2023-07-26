@@ -56,9 +56,9 @@ object Deps:
       )((title, message) => PushoverMessage(title, message, config.token, config.user))
 
   def mkCache(config: Option[RedisConfig])(using log: Logger[IO]): Resource[IO, CacheService] = config match
-    case None => log.info("Using cache.json").toResource *> FileCacheService.create
+    case None => log.debug("Using cache.json").toResource *> FileCacheService.create
     case Some(config) =>
-      log.info("Using Redis cache").toResource *> RedisConnection
+      log.debug("Using Redis cache").toResource *> RedisConnection
         .queued[IO]
         .withHost(config.host)
         .build
