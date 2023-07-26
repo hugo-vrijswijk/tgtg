@@ -38,7 +38,7 @@ object Deps:
         uri = uri"${config.url}/message",
         http = http,
         headers = Header("X-Gotify-Key", config.token)
-      )( GotifyMessage(_, _))
+      )(GotifyMessage(_, _))
     case config: NotifyConfig.Pushbullet =>
       // https://docs.pushbullet.com/#create-push
       NotifyService.simple(
