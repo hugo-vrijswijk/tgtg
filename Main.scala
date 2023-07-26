@@ -6,7 +6,8 @@ import com.monovore.decline.Opts
 import com.monovore.decline.effect.CommandIOApp
 import fs2.Stream
 import org.legogroup.woof.{Logger, given}
-import tgtg.notification.Notification
+import tgtg.cache.CacheKey
+import tgtg.notification.{Message, Title}
 
 import scala.concurrent.duration.*
 
@@ -71,7 +72,7 @@ final class Main(config: Config)(using log: Logger[IO]):
           if items.isEmpty then log.info("No boxes to notify for.")
           else
             items.parTraverse_ : item =>
-              val key = show"gotify-${item.store.store_name}"
+              val key = CacheKey(s"gotify-${item.store.store_name}")
 
               val notificationTimeout = 60.minutes
 
@@ -84,11 +85,12 @@ final class Main(config: Config)(using log: Logger[IO]):
                   cache
                     .set(true, key, notificationTimeout)
                     .guarantee(
-                      notify.sendNotification(Notification(title = item.display_name, message = item.show))
+                      notify.sendNotification(Title(item.display_name), Message(item.show))
                     ),
                   log.info(
                     show"Found boxes, but notification for '$key' was already sent in the last $notificationTimeout."
                   )
                 )
+          end if
 
 end Main

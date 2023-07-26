@@ -1,6 +1,5 @@
 package tgtg.cache
 
-import FileCacheService.Cache
 import cats.Functor
 import cats.effect.kernel.Clock
 import cats.effect.{IO, Ref, Resource}
@@ -11,18 +10,19 @@ import io.circe.parser.decode
 import io.circe.syntax.*
 import io.circe.{Decoder, Encoder, Json}
 import org.legogroup.woof.{Logger, given}
+import tgtg.cache.FileCacheService.Cache
 
 import java.time.Instant
 import scala.concurrent.duration.FiniteDuration
 
 class FileCacheService(cache: Ref[IO, Cache])(using log: Logger[IO]) extends CacheService:
 
-  override def get[T: Decoder](key: String): IO[Option[T]] = for
+  override def get[T: Decoder](key: CacheKey): IO[Option[T]] = for
     now  <- Clock[IO].instant
     data <- cache.get.map(_.get(key))
   yield data.mapFilter((ttl, data) => if ttl.isAfter(now) then data.as[T].toOption else none)
 
-  override def set[T: Encoder](value: T, key: String, ttl: FiniteDuration): IO[Unit] = for
+  override def set[T: Encoder](value: T, key: CacheKey, ttl: FiniteDuration): IO[Unit] = for
     now <- Clock[IO].instant
     _   <- cache.update(_.updated(key, (now.plusMillis(ttl.toMillis), value.asJson)))
   yield ()
@@ -30,7 +30,7 @@ class FileCacheService(cache: Ref[IO, Cache])(using log: Logger[IO]) extends Cac
 end FileCacheService
 
 object FileCacheService:
-  type Cache = Map[String, (Instant, Json)]
+  type Cache = Map[CacheKey, (Instant, Json)]
 
   def create(using log: Logger[IO]): Resource[IO, CacheService] =
     for

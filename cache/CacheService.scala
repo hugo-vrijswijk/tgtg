@@ -5,15 +5,19 @@ import cats.effect.IO
 import cats.syntax.all.*
 import io.circe.{Codec, Decoder, Encoder}
 import org.legogroup.woof.{Logger, given}
+import tgtg.NewType
 
 import scala.concurrent.duration.FiniteDuration
 
+object CacheKey extends NewType[String]
+type CacheKey = CacheKey.Type
+
 trait CacheService(using log: Logger[IO]):
 
-  def get[T: Decoder](key: String): IO[Option[T]]
-  def set[T: Encoder](value: T, key: String, ttl: FiniteDuration): IO[Unit]
+  def get[T: Decoder](key: CacheKey): IO[Option[T]]
+  def set[T: Encoder](value: T, key: CacheKey, ttl: FiniteDuration): IO[Unit]
 
-  def retrieveOrSet[T: Codec](action: IO[T], key: String, ttl: T => FiniteDuration): IO[T] =
+  def retrieveOrSet[T: Codec](action: IO[T], key: CacheKey, ttl: T => FiniteDuration): IO[T] =
     get(key).attempt
       .map(_.toOption.flatten)
       .flatMap:

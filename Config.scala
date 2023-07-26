@@ -3,40 +3,24 @@ package tgtg
 import cats.syntax.all.*
 import com.comcast.ip4s.{Host, *}
 import com.monovore.decline.{Argument, Opts}
-import io.circe.{Decoder, Encoder}
 import org.legogroup.woof.LogLevel
 import sttp.model.Uri
 import tgtg.notification.NotifyConfig
 
 import scala.concurrent.duration.*
 
-opaque type TgtgToken <: String = String
-object TgtgToken:
-  given Decoder[TgtgToken]  = Decoder.decodeString
-  given Argument[TgtgToken] = Argument.readString
+object UserId extends NewType[String]
+type UserId = UserId.Type
 
-opaque type UserId <: String = String
-object UserId:
-  given Decoder[UserId]  = Decoder.decodeString
-  given Argument[UserId] = Argument.readString
+object ApiToken extends NewType[String]
+type ApiToken = ApiToken.Type
 
-opaque type GotifyToken <: String = String
-object GotifyToken:
-  given Argument[GotifyToken] = Argument.readString
-
-opaque type CronitorToken <: String = String
-object CronitorToken:
-  given Argument[CronitorToken] = Argument.readString
-
-case class TgtgConfig(refreshToken: TgtgToken, userId: UserId)
+case class TgtgConfig(refreshToken: ApiToken, userId: UserId)
 case class RedisConfig(host: Host)
 case class ServerConfig(interval: FiniteDuration)
 
-opaque type Email <: String = String
-object Email:
-  given Encoder[Email]               = Encoder.encodeString
-  given Argument[Email]              = Argument.readString
-  inline def apply(s: String): Email = s
+object Email extends NewType[String]
+type Email = Email.Type
 
 trait BaseConfig:
   def log: LogLevel
@@ -46,7 +30,7 @@ case class AuthConfig(email: Option[Email], log: LogLevel) extends BaseConfig
 case class Config(
     tgtg: TgtgConfig,
     notification: NotifyConfig,
-    cronitor: Option[CronitorToken],
+    cronitor: Option[ApiToken],
     redis: Option[RedisConfig],
     log: LogLevel,
     server: Option[ServerConfig]
@@ -84,7 +68,7 @@ object Config:
     private val refreshHelp =
       "Refresh token for TooGoodToGo. Get it using `tgtg auth` command"
     private val refreshToken =
-      Opts.option[TgtgToken]("refresh-token", refreshHelp) orElse Opts.env[TgtgToken]("TGTG_REFRESH_TOKEN", refreshHelp)
+      Opts.option[ApiToken]("refresh-token", refreshHelp) orElse Opts.env[ApiToken]("TGTG_REFRESH_TOKEN", refreshHelp)
 
     private val userIdHelp =
       "User id for TooGoodToGo. Get it using `tgtg auth` command"
@@ -92,18 +76,30 @@ object Config:
 
     private val gotifyHelp = "Gotify token for notifications"
     private val gotifyToken =
-      Opts.option[GotifyToken]("gotify-token", gotifyHelp) orElse Opts.env[GotifyToken]("GOTIFY_TOKEN", gotifyHelp)
+      Opts.option[ApiToken]("gotify-token", gotifyHelp) orElse Opts.env[ApiToken]("GOTIFY_TOKEN", gotifyHelp)
     private val gotifyUrlHelp = "Gotify url to send notifications to"
     private val gotifyUrl =
       Opts.option[Uri]("gotify-url", gotifyUrlHelp) orElse Opts.env[Uri]("GOTIFY_URL", gotifyUrlHelp)
 
     private val gotify = (gotifyToken, gotifyUrl).mapN(NotifyConfig.Gotify.apply)
 
-    val notification = gotify
+    private val pushbulletHelp = "Pushbullet token for notifications"
+    private val pushbullet = (Opts.option[ApiToken]("pushbullet-token", pushbulletHelp) orElse Opts
+      .env[ApiToken]("PUSHBULLET_TOKEN", pushbulletHelp)).map(NotifyConfig.Pushbullet.apply)
+
+    private val pushoverHelp = "Pushover token for notifications"
+    private val pushoverToken =
+      Opts.option[ApiToken]("pushover-token", pushoverHelp) orElse Opts.env[ApiToken]("PUSHOVER_TOKEN", pushoverHelp)
+    private val pushoverUser =
+      Opts.option[UserId]("pushover-user", pushoverHelp) orElse Opts.env[UserId]("PUSHOVER_USER", pushoverHelp)
+
+    private val pushover = (pushoverToken, pushoverUser).mapN(NotifyConfig.Pushover.apply)
+
+    val notification: Opts[NotifyConfig] = List(gotify, pushbullet, pushover).reduce(_ orElse _)
 
     private val cronitorHelp = "Cronitor token for monitoring (optional)"
-    val cronitor = (Opts.option[CronitorToken]("cronitor-token", cronitorHelp) orElse Opts
-      .env[CronitorToken]("CRONITOR_TOKEN", cronitorHelp)).orNone
+    val cronitor = (Opts.option[ApiToken]("cronitor-token", cronitorHelp) orElse Opts
+      .env[ApiToken]("CRONITOR_TOKEN", cronitorHelp)).orNone
 
     val tgtg = (refreshToken, userId).mapN(TgtgConfig.apply)
 

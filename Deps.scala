@@ -4,9 +4,9 @@ import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import io.chrisdavenport.rediculous.RedisConnection
 import org.legogroup.woof.{*, given}
-import sttp.client4.Backend
+import sttp.client4.*
 import sttp.client4.logging.{LogConfig, LoggingBackend}
-import sttp.model.HeaderNames
+import sttp.model.{Header, HeaderNames}
 import tgtg.cache.*
 import tgtg.http.*
 import tgtg.notification.*
@@ -18,7 +18,7 @@ object Deps:
     given Filter  = Filter.atLeastLevel(logLevel)
     DefaultLogger.makeIo(Output.fromConsole[IO])
 
-  def mkHttpBackend(config: Option[CronitorToken])(using log: Logger[IO]) =
+  def mkHttpBackend(config: Option[ApiToken])(using log: Logger[IO]) =
     httpBackend
       .map(
         LoggingBackend(
@@ -32,7 +32,28 @@ object Deps:
       .flatTap(b => config.fold(log.debug("Cronitor disabled").toResource)(cronitor(b, _)))
 
   def mkNotifyService(http: Backend[IO], notify: NotifyConfig)(using Logger[IO]): NotifyService = notify match
-    case config: NotifyConfig.Gotify => Gotify(http, config)
+    case config: NotifyConfig.Gotify =>
+      NotifyService.simple(
+        name = "Gotify",
+        uri = uri"${config.url}/message",
+        http = http,
+        headers = Header("X-Gotify-Key", config.token)
+      )( GotifyMessage(_, _))
+    case config: NotifyConfig.Pushbullet =>
+      // https://docs.pushbullet.com/#create-push
+      NotifyService.simple(
+        name = "Pushbullet",
+        uri = uri"https://api.pushbullet.com/v2/pushes",
+        http = http,
+        headers = Header("Access-Token", config.token)
+      )(PushbulletMessage(_, _))
+    case config: NotifyConfig.Pushover =>
+      // https://pushover.net/api#messages
+      NotifyService.simple(
+        name = "Pushover",
+        uri = uri"https://api.pushover.net/1/messages.json",
+        http = http
+      )((title, message) => PushoverMessage(title, message, config.token, config.user))
 
   def mkCache(config: Option[RedisConfig])(using log: Logger[IO]): Resource[IO, CacheService] = config match
     case None => log.info("Using cache.json").toResource *> FileCacheService.create

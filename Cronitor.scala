@@ -5,7 +5,7 @@ import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import sttp.client4.*
 
-def cronitor(http: Backend[IO], cronitorToken: CronitorToken): Resource[IO, Unit] =
+def cronitor(http: Backend[IO], cronitorToken: ApiToken): Resource[IO, Unit] =
 
   type State = "run" | "fail" | "complete"
 

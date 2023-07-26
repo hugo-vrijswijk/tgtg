@@ -7,7 +7,7 @@ import org.legogroup.woof.{Logger, given}
 import sttp.client4.*
 import sttp.client4.circe.*
 import sttp.model.*
-import tgtg.cache.CacheService
+import tgtg.cache.{CacheKey, CacheService}
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.*
@@ -65,7 +65,7 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
         )
       )
 
-    cache.retrieveOrSet(action, s"tgtg-accessToken/${config.userId}", a => a.ttl / 4 * 3)
+    cache.retrieveOrSet(action, CacheKey(s"tgtg-accessToken/${config.userId}"), a => a.ttl / 4 * 3)
   end getAccessToken
 
   def getCredentials(email: Email): IO[TgtgConfig] =
@@ -124,10 +124,8 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
     .flatMap(_.betweenInt(0, userAgents.length))
     .map(i =>
       Map(
-        HeaderNames.Accept         -> "application/json",
         HeaderNames.AcceptEncoding -> "gzip",
         HeaderNames.AcceptLanguage -> "en-GB",
-        HeaderNames.ContentType    -> "application/json; charset=utf-8",
         HeaderNames.UserAgent      -> userAgents(i)
       )
     )

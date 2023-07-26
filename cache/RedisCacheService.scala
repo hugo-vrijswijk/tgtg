@@ -18,7 +18,7 @@ class RedisCacheService(client: RedisConnection[IO])(using log: Logger[IO]) exte
 
   private type RedisF[A] = Redis[IO, A]
 
-  def get[T: Decoder](key: String): IO[Option[T]] =
+  def get[T: Decoder](key: CacheKey): IO[Option[T]] =
     RedisCommands
       .get[RedisF](key)
       .run(client)
@@ -26,7 +26,7 @@ class RedisCacheService(client: RedisConnection[IO])(using log: Logger[IO]) exte
       .handleErrorWith(e => log.error(show"Failed to get key '$key': $e").as(none))
       .logTimed(show"getting '$key'")
 
-  def set[T: Encoder](value: T, key: String, ttl: FiniteDuration): IO[Unit] =
+  def set[T: Encoder](value: T, key: CacheKey, ttl: FiniteDuration): IO[Unit] =
     RedisCommands
       .set[RedisF](key, value.asJson.noSpaces, SetOpts.default.copy(setSeconds = ttl.toSeconds.some))
       .run(client)
