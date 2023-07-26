@@ -56,7 +56,7 @@ jobs:
       - name: Package app
         run: scala-cli package . -o "${{ matrix.local_path }}" --native-image ${{ matrix.OS != 'macos-latest' && '--graalvm-args --static' || '' }}
       - name: Compress artifact
-        if: ${{ matrix.OS != 'macos-latest' }}
+        if: ${{ matrix.OS == 'ubuntu-latest' }}
         uses: crazy-max/ghaction-upx@v2
         with:
           args: --best
