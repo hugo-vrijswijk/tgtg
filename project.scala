@@ -19,6 +19,3 @@
 //> using option -Wunused:all
 //> using option -Wvalue-discard
 //> using option -deprecation
-
-// Use static linking to avoid need for glibc in the container
-//> using packaging.graalvmArgs --static
