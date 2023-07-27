@@ -32,18 +32,18 @@ case class Config(
     notification: NotifyConfig,
     cronitor: Option[ApiToken],
     redis: Option[RedisConfig],
-    log: LogLevel,
-    server: Option[ServerConfig]
+    server: Option[ServerConfig],
+    log: LogLevel
 ) extends BaseConfig
 
 object Config:
 
   import allOpts.*
   val auth =
-    Opts.subcommand("auth", "Authenticate with TooGoodToGo to retrieve your credentials (user-id and refresh-token)")(
-      (email, log).mapN(AuthConfig.apply)
+    Opts.subcommand("auth", "Authenticate with TooGoodToGo to retrieve your credentials (user-id and refresh-token).")(
+      (userEmail, log).mapN(AuthConfig.apply)
     )
-  val opts = (tgtg, notification, cronitor, redis, log, server).mapN(Config.apply)
+  val opts = (tgtg, notification, cronitor, redis, server, log).mapN(Config.apply)
 
   private object allOpts:
     private given Argument[Uri] = Argument.from("url")(
@@ -65,64 +65,76 @@ object Config:
       case other   => show"Invalid log level $other. Should be one of 'debug', 'info', 'warn' or 'error'".invalidNel
     )
 
+    private given Argument[ApiToken] = Argument.from("token")(ApiToken(_).validNel)
+    private given Argument[Email]    = Argument.from("email")(Email(_).validNel)
+    private given Argument[UserId]   = Argument.from("user_id")(UserId(_).validNel)
+
     private val refreshHelp =
-      "Refresh token for TooGoodToGo. Get it using `tgtg auth` command"
+      "Refresh token for TooGoodToGo. Get it using the `tgtg auth` command."
     private val refreshToken =
-      Opts.option[ApiToken]("refresh-token", refreshHelp) orElse Opts.env[ApiToken]("TGTG_REFRESH_TOKEN", refreshHelp)
+      Opts.option[ApiToken]("refresh-token", refreshHelp, "r") orElse
+        Opts.env[ApiToken]("TGTG_REFRESH_TOKEN", refreshHelp)
 
     private val userIdHelp =
-      "User id for TooGoodToGo. Get it using `tgtg auth` command"
-    val userId = Opts.option[UserId]("user-id", userIdHelp) orElse Opts.env[UserId]("TGTG_USER_ID", userIdHelp)
+      "User id for TooGoodToGo. Get it using the `tgtg auth` command."
+    val userId = Opts.option[UserId]("user-id", userIdHelp, "u") orElse Opts.env[UserId]("TGTG_USER_ID", userIdHelp)
 
-    private val gotifyHelp = "Gotify token for notifications"
+    private val gotifyHelp = "Gotify token for notifications (optional)."
     private val gotifyToken =
       Opts.option[ApiToken]("gotify-token", gotifyHelp) orElse Opts.env[ApiToken]("GOTIFY_TOKEN", gotifyHelp)
-    private val gotifyUrlHelp = "Gotify url to send notifications to"
+    private val gotifyUrlHelp = "Gotify server URL to send notifications to."
     private val gotifyUrl =
       Opts.option[Uri]("gotify-url", gotifyUrlHelp) orElse Opts.env[Uri]("GOTIFY_URL", gotifyUrlHelp)
 
     private val gotify = (gotifyToken, gotifyUrl).mapN(NotifyConfig.Gotify.apply)
 
-    private val pushbulletHelp = "Pushbullet token for notifications"
-    private val pushbullet = (Opts.option[ApiToken]("pushbullet-token", pushbulletHelp) orElse Opts
-      .env[ApiToken]("PUSHBULLET_TOKEN", pushbulletHelp)).map(NotifyConfig.Pushbullet.apply)
+    private val pushbulletHelp = "Pushbullet token for notifications."
+    private val pushbullet =
+      (Opts.option[ApiToken]("pushbullet-token", pushbulletHelp) orElse
+        Opts.env[ApiToken]("PUSHBULLET_TOKEN", pushbulletHelp))
+        .map(NotifyConfig.Pushbullet.apply)
 
-    private val pushoverHelp = "Pushover token for notifications"
+    private val pushoverTokenHelp = "Pushover token for notifications."
     private val pushoverToken =
-      Opts.option[ApiToken]("pushover-token", pushoverHelp) orElse Opts.env[ApiToken]("PUSHOVER_TOKEN", pushoverHelp)
+      Opts.option[ApiToken]("pushover-token", pushoverTokenHelp) orElse
+        Opts.env[ApiToken]("PUSHOVER_TOKEN", pushoverTokenHelp)
+    private val pushoverUserHelp = "Pushover user ID for notifications."
     private val pushoverUser =
-      Opts.option[UserId]("pushover-user", pushoverHelp) orElse Opts.env[UserId]("PUSHOVER_USER", pushoverHelp)
+      Opts.option[UserId]("pushover-user", pushoverUserHelp) orElse Opts.env[UserId]("PUSHOVER_USER", pushoverUserHelp)
 
     private val pushover = (pushoverToken, pushoverUser).mapN(NotifyConfig.Pushover.apply)
 
     val notification: Opts[NotifyConfig] = List(gotify, pushbullet, pushover).reduce(_ orElse _)
 
-    private val cronitorHelp = "Cronitor token for monitoring (optional)"
-    val cronitor = (Opts.option[ApiToken]("cronitor-token", cronitorHelp) orElse Opts
-      .env[ApiToken]("CRONITOR_TOKEN", cronitorHelp)).orNone
+    private val cronitorHelp = "Cronitor token for monitoring (optional)."
+    val cronitor = (Opts.option[ApiToken]("cronitor-token", cronitorHelp) orElse
+      Opts.env[ApiToken]("CRONITOR_TOKEN", cronitorHelp)).orNone
 
     val tgtg = (refreshToken, userId).mapN(TgtgConfig.apply)
 
     private val redisHostHelp =
-      "Redis host (for storing auth and notification cache). Uses a local cache.json file if not set"
+      "Specify the Redis host for storing authentication tokens and notification history cache. If not set a local cache.json file will be used instead."
     private val redisHost =
-      Opts.option[Host]("redis-host", redisHostHelp) orElse Opts.env[Host]("REDIS_HOST", redisHostHelp)
+      Opts.option[Host]("redis-host", redisHostHelp, "R") orElse
+        Opts.env[Host]("REDIS_HOST", redisHostHelp)
 
     val redis = redisHost.map(RedisConfig.apply).orNone
 
-    private val logHelp = "Set the log level (debug, info, warn, error)"
     val log = (
-      Opts.flag("debug", "enable debug logging for more information", "d").as(LogLevel.Debug) orElse
-        Opts.option[LogLevel]("log-level", logHelp, "l") orElse Opts.env[LogLevel]("LOG_LEVEL", logHelp)
+      Opts.flag("verbose", "Enable verbose logging for more detailed output.", "v").as(LogLevel.Trace) orElse
+        Opts.flag("quiet", "Suppress logging output (only log errors).", "q").as(LogLevel.Error) orElse
+        Opts.env[LogLevel]("LOG_LEVEL", "Set the log level (debug, info, warn, error).", "log_level")
     ).withDefault(LogLevel.Info)
 
-    private val isServer = Opts.flag("server", "Run as a server (don't exit after first run)", "s")
+    private val isServer = Opts.flag("server", "Run as a server (don't exit after the first run).", "s")
     private val interval =
-      Opts.option[FiniteDuration]("interval", "Interval to sleep between runs", "i").withDefault(5.minutes)
+      Opts
+        .option[FiniteDuration]("interval", "Time interval between checks for available boxes.", "i")
+        .withDefault(5.minutes)
 
     val server = (isServer, interval).mapN((_, interval) => ServerConfig(interval)).orNone
 
-    val email = Opts.option[Email]("email", "Email to use for authentication").orNone
+    val userEmail = Opts.option[Email]("user-email", "Email to use for authentication (optional).").orNone
   end allOpts
 
 end Config
