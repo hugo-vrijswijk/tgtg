@@ -16,17 +16,16 @@ object NotifyService:
   /** Create a simple [[NotifyService]] that sends a HTTP request with a JSON body
     */
   def simple[T: Encoder](name: String, uri: Uri, http: Backend[IO], headers: Header*)(
-      messageFn: Notification => T
-  )(using Logger[IO]) =
-    new NotifyService:
-      def sendNotification(title: Title, message: Message): IO[Unit] = basicRequest
-        .post(uri)
-        .headers(headers*)
-        .responseGetRight
-        .body(messageFn((title, message)))
-        .send(http)
-        .logTimed(s"$name notification")
-        .void
+      messageFn: (Title, Message) => T
+  )(using Logger[IO]): NotifyService = (title: Title, message: Message) =>
+    basicRequest
+      .post(uri)
+      .headers(headers*)
+      .responseGetRight
+      .body(messageFn(title, message))
+      .send(http)
+      .logTimed(s"$name notification")
+      .void
 end NotifyService
 
 object Title extends NewType[String]
@@ -34,8 +33,6 @@ type Title = Title.Type
 
 object Message extends NewType[String]
 type Message = Message.Type
-
-type Notification = (Title, Message)
 
 enum NotifyConfig:
   case Gotify(token: ApiToken, url: Uri)
