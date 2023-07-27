@@ -46,3 +46,12 @@ Each of these options can also be an environment variable (in `SCREAMING_SNAKE_C
 
 Inspired by [tgtg-python](https://github.com/ahivert/tgtg-python). This app wouldn't exist without it.
 
+Developed using:
+
+- [Scala CLI](https://scala-cli.virtuslab.org/) (and [GraalVM](https://www.graalvm.org/))
+- [Cats Effect](https://typelevel.org/cats-effect/) (and [FS2](https://fs2.io/))
+- [Decline](https://ben.kirw.in/decline/)
+- [Sttp](https://sttp.softwaremill.com/en/stable/)
+- [Woof](https://github.com/LEGO/woof)
+- [Circe](https://circe.github.io/circe/)
+- [Rediculous](https://davenverse.github.io/rediculous/)
