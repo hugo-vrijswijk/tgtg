@@ -19,3 +19,5 @@
 //> using option -Wunused:all
 //> using option -Wvalue-discard
 //> using option -deprecation
+
+//> using resourceDir ./resources

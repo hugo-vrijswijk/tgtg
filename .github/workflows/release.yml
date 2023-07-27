@@ -1,18 +1,31 @@
-name: Package
+name: release
 
 on:
   push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
-  release:
-    types: [published]
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
 
 jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          release-type: simple
+          package-name: tgtg
+          version-file: resources/version.txt
   package:
-    permissions:
-      contents: write
-      packages: write
+    needs: [release-please]
+    if: ${{ needs.release-please.outputs.release_created }}
     runs-on: ${{ matrix.OS }}
     env:
       REGISTRY: ghcr.io
@@ -21,7 +34,6 @@ jobs:
       matrix:
         OS: ["ubuntu-latest", "windows-latest", "macos-latest"]
         include:
-          # Replace "example" with the name your binary
           - os: macOS-latest
             uploaded_filename: tgtg-x86_64-apple-darwin
             local_path: artifacts/tgtg-x86_64-apple-darwin
@@ -54,23 +66,12 @@ jobs:
           power: true
           jvm: "temurin:17"
       - name: Package app
-        run: scala-cli package . -o "${{ matrix.local_path }}" --native-image ${{ matrix.OS != 'macos-latest' && '--graalvm-args --static' || '' }}
+        run: scala-cli package . -o "${{ matrix.local_path }}" --native-image -- -H:IncludeResources=version.txt ${{ matrix.OS != 'macos-latest' && '--static' || '' }}
       - name: Compress artifact
         if: ${{ matrix.OS == 'ubuntu-latest' }}
         uses: crazy-max/ghaction-upx@v2
         with:
           args: --best
-          files: ${{ matrix.local_path }}
-      - uses: actions/upload-artifact@v3
-        with:
-          name: ${{ matrix.uploaded_filename }}
-          path: ${{ matrix.local_path }}
-          if-no-files-found: error
-          retention-days: 2
-      - name: Upload release
-        if: github.event_name == 'release'
-        uses: softprops/action-gh-release@v1
-        with:
           files: ${{ matrix.local_path }}
       - name: Build and push Docker image
         if: matrix.OS == 'ubuntu-latest'
@@ -81,3 +82,14 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.uploaded_filename }}
+          path: ${{ matrix.local_path }}
+          if-no-files-found: error
+          retention-days: 2
+      - name: Upload release artifacts
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ matrix.local_path }}
+          fail_on_unmatched_files: true

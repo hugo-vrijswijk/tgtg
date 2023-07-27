@@ -11,11 +11,12 @@ import tgtg.notification.{Message, Title}
 
 import scala.concurrent.duration.*
 
-val version = sys.env
-  .get("GITHUB_REF")
-  .collect:
-    case s"refs/tags/$tag" => tag
-  .getOrElse("dev")
+val version = new String(
+  getClass()
+    .getClassLoader()
+    .getResourceAsStream("version.txt")
+    .readAllBytes()
+).trim()
 
 object Main extends CommandIOApp("tgtg", "TooGoodToGo notifier for your favourite stores", version = version):
 
