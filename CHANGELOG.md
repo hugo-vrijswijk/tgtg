@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.2](https://github.com/hugo-vrijswijk/tgtg/compare/v0.3.1...v0.3.2) (2023-07-28)
+
+
+### Bug Fixes
+
+* add 'Accept' to headers ([#30](https://github.com/hugo-vrijswijk/tgtg/issues/30)) ([c58947b](https://github.com/hugo-vrijswijk/tgtg/commit/c58947b4d63aad34fa35cdf7b6d0a59c58c53405))
+* log correct usage of --user-email on error ([#29](https://github.com/hugo-vrijswijk/tgtg/issues/29)) ([882d59b](https://github.com/hugo-vrijswijk/tgtg/commit/882d59b19951e4331d0bb1c2bb932be9151c3a81))
+
 ## [0.3.1](https://github.com/hugo-vrijswijk/tgtg/compare/v0.3.0...v0.3.1) (2023-07-27)
 
 
