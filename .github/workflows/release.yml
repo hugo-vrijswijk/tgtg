@@ -2,8 +2,8 @@ name: release
 
 on:
   push:
-    branches:
-      - main
+    # branches:
+    #   - main
 
 permissions:
   contents: write
@@ -11,32 +11,35 @@ permissions:
   packages: write
 
 jobs:
-  release-please:
-    runs-on: ubuntu-latest
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
-    steps:
-      - uses: google-github-actions/release-please-action@v3
-        id: release
-        with:
-          release-type: simple
-          package-name: tgtg
-          version-file: resources/version.txt
+  # release-please:
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     release_created: ${{ steps.release.outputs.release_created }}
+  #     tag_name: ${{ steps.release.outputs.tag_name }}
+  #   steps:
+  #     - uses: google-github-actions/release-please-action@v3
+  #       id: release
+  #       with:
+  #         release-type: simple
+  #         package-name: tgtg
+  #         version-file: resources/version.txt
   package:
-    needs: [release-please]
-    if: ${{ needs.release-please.outputs.release_created }}
+    # needs: [release-please]
+    # if: ${{ needs.release-please.outputs.release_created }}
     runs-on: ${{ matrix.OS }}
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}
     strategy:
       matrix:
-        OS: ["ubuntu-latest", "windows-latest", "macos-latest"]
+        OS: ["ubuntu-latest", "windows-latest", "macos-latest", "macos-m1"]
         include:
           - os: macOS-latest
             uploaded_filename: tgtg-x86_64-apple-darwin
             local_path: artifacts/tgtg-x86_64-apple-darwin
+          - os: macOS-m1
+            uploaded_filename: tgtg-aarch64-apple-darwin
+            local_path: artifacts/tgtg-aarch64-apple-darwin
           - os: ubuntu-latest
             uploaded_filename: tgtg-x86_64-pc-linux
             local_path: artifacts/tgtg-x86_64-pc-linux
@@ -65,7 +68,6 @@ jobs:
             type=ref,event=branch
             type=ref,event=tag
             type=ref,event=pr
-            type=raw,value=${{ needs.release-please.outputs.tag_name }}
             type=raw,value=latest
       - uses: coursier/cache-action@v6
       - uses: VirtusLab/scala-cli-setup@v1
@@ -99,7 +101,7 @@ jobs:
           path: ${{ matrix.local_path }}
           if-no-files-found: error
           retention-days: 2
-      - name: Upload release artifacts
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ needs.release-please.outputs.tag_name }} ${{ matrix.local_path }}
+      # - name: Upload release artifacts
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: gh release upload ${{ needs.release-please.outputs.tag_name }} ${{ matrix.local_path }}
