@@ -22,12 +22,12 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
   def getItems(cache: CacheService, config: TgtgConfig) =
     def retrieveItems(access: AccessToken) =
       headers()
-        .flatMap(ua =>
+        .flatMap(baseHeaders =>
           basicRequest
             .body(GetItemsRequest(config.userId))
             .post(itemsEndpoint)
             .cookies(access.cookies.toSeq*)
-            .headers(ua)
+            .headers(baseHeaders*)
             .auth
             .bearer(access.access_token)
             .response(asJson[GetItemsResponse])
@@ -43,12 +43,12 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
 
   def getAccessToken(cache: CacheService, config: TgtgConfig): IO[AccessToken] =
     val action = headers()
-      .flatMap: ua =>
+      .flatMap: baseHeaders =>
         basicRequest
           .body(RefreshRequest(config.refreshToken))
           .post(refreshEndpoint)
           .response(asJson[RefreshResponse])
-          .headers(ua)
+          .headers(baseHeaders*)
           .responseGetRight
           .send(http)
       .map(r =>
@@ -66,12 +66,12 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
   end getAccessToken
 
   def getCredentials(email: Email): IO[TgtgConfig] =
-    headers().flatMap: ua =>
+    headers().flatMap: baseHeaders =>
       basicRequest
         .body(LoginRequest(email))
         .post(loginEndpoint)
         .response(asJson[LoginResponse])
-        .headers(ua)
+        .headers(baseHeaders*)
         .responseGetRight
         .send(http)
         .flatMap: r =>
@@ -91,7 +91,7 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
                 .body(PollRequest(email, pollId))
                 .post(authPollEndpoint)
                 .response(asJson[Option[PollResponse]])
-                .headers(ua)
+                .headers(baseHeaders*)
                 .responseGetRight
                 .send(http)
                 .logTimed("poll")
@@ -116,14 +116,15 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
             case StatusCode.TooManyRequests => IO.raiseError(new Exception("Too many requests. Try again later."))
             case _: StatusCode              => IO.raiseError(new Exception(show"Unexpected response: ${r.show()}"))
 
-  private def headers(): IO[Map[String, String]] = Random
+  private def headers(): IO[Seq[Header]] = Random
     .scalaUtilRandom[IO]
     .flatMap(_.betweenInt(0, userAgents.length))
     .map(i =>
-      Map(
-        HeaderNames.AcceptEncoding -> "gzip",
-        HeaderNames.AcceptLanguage -> "en-GB",
-        HeaderNames.UserAgent      -> userAgents(i)
+      Seq(
+        Header.accept(MediaType.ApplicationJson),
+        Header.acceptEncoding("gzip"),
+        Header(HeaderNames.AcceptLanguage, "en-GB"),
+        Header.userAgent(userAgents(i))
       )
     )
 
