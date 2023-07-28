@@ -26,6 +26,8 @@ final class Auth(tgtg: TooGoodToGo, config: AuthConfig)(using log: Logger[IO]):
     .head
     .compile
     .lastOrError
-    .handleErrorWith(e => IO.raiseError(new RuntimeException("Failed to read line. Use --email option instead", e)))
+    .handleErrorWith(e =>
+      IO.raiseError(new RuntimeException("Failed to read line. Use --user-email option instead", e))
+    )
 
 end Auth
