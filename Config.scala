@@ -1,7 +1,6 @@
 package tgtg
 
 import cats.syntax.all.*
-import com.comcast.ip4s.{Host, *}
 import com.monovore.decline.{Argument, Opts}
 import org.legogroup.woof.LogLevel
 import sttp.model.Uri
@@ -16,7 +15,6 @@ object ApiToken extends NewType[String]
 type ApiToken = ApiToken.Type
 
 case class TgtgConfig(refreshToken: ApiToken, userId: UserId)
-case class RedisConfig(host: Host)
 case class ServerConfig(interval: FiniteDuration)
 
 object Email extends NewType[String]
@@ -31,7 +29,6 @@ case class Config(
     tgtg: TgtgConfig,
     notification: NotifyConfig,
     cronitor: Option[ApiToken],
-    redis: Option[RedisConfig],
     server: Option[ServerConfig],
     log: LogLevel
 ) extends BaseConfig
@@ -43,7 +40,7 @@ object Config:
     Opts.subcommand("auth", "Authenticate with TooGoodToGo to retrieve your credentials (user-id and refresh-token).")(
       (userEmail, log).mapN(AuthConfig.apply)
     )
-  val opts = (tgtg, notification, cronitor, redis, server, log).mapN(Config.apply)
+  val opts = (tgtg, notification, cronitor, server, log).mapN(Config.apply)
 
   private object allOpts:
     private given Argument[Uri] = Argument.from("url")(
@@ -54,8 +51,6 @@ object Config:
         .ensureOr(s => show"Url $s must not be relative")(_.isAbsolute)
         .toValidatedNel
     )
-    private given Argument[Host] =
-      Argument.from("host")(str => Host.fromString(str).toRight(show"Invalid host $str").toValidatedNel)
 
     private given Argument[LogLevel] = Argument.from("level")(_.toLowerCase match
       case "debug" => LogLevel.Debug.validNel
@@ -111,14 +106,6 @@ object Config:
       Opts.env[ApiToken]("CRONITOR_TOKEN", cronitorHelp)).orNone
 
     val tgtg = (refreshToken, userId).mapN(TgtgConfig.apply)
-
-    private val redisHostHelp =
-      "Specify the Redis host for storing authentication tokens and notification history cache. If not set a local cache.json file will be used instead."
-    private val redisHost =
-      Opts.option[Host]("redis-host", redisHostHelp, "R") orElse
-        Opts.env[Host]("REDIS_HOST", redisHostHelp)
-
-    val redis = redisHost.map(RedisConfig.apply).orNone
 
     val log = (
       Opts.flag("verbose", "Enable verbose logging for more detailed output.", "v").as(LogLevel.Trace) orElse
