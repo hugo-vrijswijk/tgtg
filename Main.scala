@@ -61,7 +61,7 @@ final class Main(config: Config)(using log: Logger[IO]):
   /** Run once
     */
   def run =
-    (Deps.mkHttpBackend(config.cronitor), Deps.mkCache(config.redis)).parTupled.use: (http, cache) =>
+    (Deps.mkHttpBackend(config.cronitor), Deps.mkCache()).parTupled.use: (http, cache) =>
 
       val tgtg   = TooGoodToGo(http)
       val notify = Deps.mkNotifyService(http, config.notification)

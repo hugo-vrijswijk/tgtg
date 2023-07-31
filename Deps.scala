@@ -2,7 +2,6 @@ package tgtg
 
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
-import io.chrisdavenport.rediculous.RedisConnection
 import org.legogroup.woof.{*, given}
 import sttp.client4.*
 import sttp.client4.logging.{LogConfig, LoggingBackend}
@@ -61,14 +60,7 @@ object Deps:
         http = http
       )(WebhookMessage(_, _))
 
-  def mkCache(config: Option[RedisConfig])(using log: Logger[IO]): Resource[IO, CacheService] = config match
-    case None => log.debug("Using cache.json").toResource *> FileCacheService.create
-    case Some(config) =>
-      log.debug("Using Redis cache").toResource *> RedisConnection
-        .queued[IO]
-        .withHost(config.host)
-        .build
-        .map(RedisCacheService(_))
+  def mkCache()(using log: Logger[IO]): Resource[IO, CacheService] = FileCacheService.create
 
 end Deps
 

@@ -4,7 +4,6 @@
 //> using dep co.fs2::fs2-io::3.10.2
 //> using dep "com.softwaremill.sttp.client4::circe::4.0.0-M11"
 //> using dep "com.softwaremill.sttp.client4::cats::4.0.0-M11"
-//> using dep "io.chrisdavenport::rediculous::0.5.1"
 //> using dep "io.circe::circe-core::0.14.6"
 //> using dep "io.circe::circe-parser::0.14.6"
 //> using dep "org.legogroup::woof-core::0.7.0"
