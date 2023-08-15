@@ -104,7 +104,11 @@ object Config:
 
     private val pushover = (pushoverToken, pushoverUser).mapN(NotifyConfig.Pushover.apply)
 
-    val notification: Opts[NotifyConfig] = List(gotify, pushbullet, pushover).reduce(_ orElse _)
+    private val webhookHelp = "Webhook URL to send notifications to."
+    private val webhook = (Opts.option[Uri]("webhook-url", webhookHelp) orElse
+      Opts.env[Uri]("WEBHOOK_URL", webhookHelp)).map(NotifyConfig.Webhook.apply)
+
+    val notification: Opts[NotifyConfig] = List(gotify, pushbullet, pushover, webhook).reduce(_ orElse _)
 
     private val cronitorHelp = "Cronitor token for monitoring (optional)."
     val cronitor = (Opts.option[ApiToken]("cronitor-token", cronitorHelp) orElse
