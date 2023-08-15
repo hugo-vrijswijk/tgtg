@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/hugo-vrijswijk/tgtg/compare/v0.3.2...v0.4.0) (2023-08-15)
+
+
+### Features
+
+* **notifications:** add webhook notification provider ([#35](https://github.com/hugo-vrijswijk/tgtg/issues/35)) ([7c4e0c6](https://github.com/hugo-vrijswijk/tgtg/commit/7c4e0c61c35f2cb776d8e9aab306779b67cfc92d))
+
 ## [0.3.2](https://github.com/hugo-vrijswijk/tgtg/compare/v0.3.1...v0.3.2) (2023-07-28)
 
 
