@@ -54,6 +54,12 @@ object Deps:
         uri = uri"https://api.pushover.net/1/messages.json",
         http = http
       )((title, message) => PushoverMessage(title, message, config.token, config.user))
+    case config: NotifyConfig.Webhook =>
+      NotifyService.simple(
+        name = "Webhook",
+        uri = config.url,
+        http = http
+      )(WebhookMessage(_, _))
 
   def mkCache(config: Option[RedisConfig])(using log: Logger[IO]): Resource[IO, CacheService] = config match
     case None => log.debug("Using cache.json").toResource *> FileCacheService.create

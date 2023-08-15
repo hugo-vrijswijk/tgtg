@@ -63,6 +63,8 @@ Choose your preferred notification platform for available box alerts:
 - Gotify: `--gotify-url` and `--gotify-token`.
 - Pushbullet: `--pushbullet-token`.
 - Pushover: `--pushover-token` and `--pushover-user`.
+- Custom Webhook URL: `--webhook-url`
+  - This will send a POST request to the URL with a JSON body containing a `title` and `message`.
 
 Each of these options can also be set as environment variables (in `SCREAMING_SNAKE_CASE`).
 

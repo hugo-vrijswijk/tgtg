@@ -38,7 +38,10 @@ enum NotifyConfig:
   case Gotify(token: ApiToken, url: Uri)
   case Pushbullet(token: ApiToken)
   case Pushover(token: ApiToken, user: UserId)
+  case Webhook(url: Uri)
+end NotifyConfig
 
 case class GotifyMessage(title: Title, message: Message, priority: Int = 8) derives Encoder.AsObject
 case class PushbulletMessage(title: Title, body: Message, `type`: String = "note") derives Encoder.AsObject
 case class PushoverMessage(title: Title, message: Message, token: ApiToken, user: UserId) derives Encoder.AsObject
+case class WebhookMessage(title: Title, message: Message) derives Encoder.AsObject
