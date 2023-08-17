@@ -38,11 +38,11 @@ jobs:
         OS: ["windows-latest", "macos-latest"]
         include:
           - os: macOS-latest
-            uploaded_filename: tgtg-x86_64-apple-darwin
-            local_path: artifacts/tgtg-x86_64-apple-darwin
+            uploaded_filename: tgtg-macos-amd64
+            local_path: artifacts/tgtg-macos-amd64
           - os: windows-latest
-            uploaded_filename: tgtg-x86_64-pc-win32.exe
-            local_path: artifacts/tgtg-x86_64-pc-win32.exe
+            uploaded_filename: tgtg-win-amd64.exe
+            local_path: artifacts/tgtg-win-amd64.exe
     steps:
       - uses: actions/checkout@v3
         with:
@@ -71,18 +71,14 @@ jobs:
     strategy:
       matrix:
         OS: ["ubuntu-latest"]
-        platform:
+        platforms:
           - linux/amd64
-          - linux/arm/v7
-          - linux/arm64/v8
+          - linux/arm/v7,linux/arm64/v8
         include:
-          - platform: linux/amd64
-            uploaded_filename: tgtg-x86_64-pc-linux
-            local_path: artifacts/tgtg-x86_64-pc-linux
-          - platform: linux/arm/v7
-            uploaded_filename: tgtg.jar
-            local_path: artifacts/tgtg.jar
-          - platform: linux/arm64/v8
+          - platforms: linux/amd64
+            uploaded_filename: tgtg-linux-amd64
+            local_path: artifacts/tgtg-linux-amd64
+          - platforms: linux/arm/v7,linux/arm64/v8
             uploaded_filename: tgtg.jar
             local_path: artifacts/tgtg.jar
     steps:
@@ -108,29 +104,29 @@ jobs:
           power: true
           jvm: "temurin:17"
       - name: Package app
-        if: matrix.platform == 'linux/amd64'
+        if: matrix.platforms == 'linux/amd64'
         run: scala-cli package . -o "${{ matrix.local_path }}" --native-image -- -H:IncludeResources=version.txt --static
       - name: Compress artifact
-        if: matrix.platform == 'linux/amd64'
+        if: matrix.platforms == 'linux/amd64'
         uses: crazy-max/ghaction-upx@v2
         with:
           args: --best
           files: ${{ matrix.local_path }}
       - name: Package app
-        if: matrix.platform != 'linux/amd64'
+        if: matrix.platforms != 'linux/amd64'
         run: |
-          mkdir -p $(dirname "${{  matrix.local_path }}")
+          mkdir -p $(dirname "${{ matrix.local_path }}")
           scala-cli package . -o "${{ matrix.local_path }}" --assembly
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         id: build
         with:
-          file: ${{ matrix.platform == 'linux/amd64' && './Dockerfile' || './arm.Dockerfile' }}
+          file: ${{ matrix.platforms == 'linux/amd64' && './Dockerfile' || './arm.Dockerfile' }}
           build-args: "LOCAL_PATH=${{ matrix.local_path }}"
           context: .
           push: true
           labels: ${{ steps.meta.outputs.labels }}
-          platforms: ${{ matrix.platform }}
+          platforms: ${{ matrix.platforms }}
           outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,name-canonical=true,push=true
       - name: Export digest
         run: |
@@ -145,7 +141,6 @@ jobs:
           if-no-files-found: error
           retention-days: 1
       - uses: actions/upload-artifact@v3
-        if: matrix.platform == 'linux/arm64/v8' || matrix.platform == 'linux/amd64'
         with:
           name: ${{ matrix.uploaded_filename }}
           path: ${{ matrix.local_path }}
