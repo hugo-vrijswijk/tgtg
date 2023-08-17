@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    types: [synchronize, opened, reopened]
 
 permissions:
   contents: write
@@ -17,21 +15,21 @@ env:
   REGISTRY_IMAGE: ghcr.io/${{ github.repository }}
 
 jobs:
-  # release-please:
-  #   runs-on: ubuntu-latest
-  #   outputs:
-  #     release_created: ${{ steps.release.outputs.release_created }}
-  #     tag_name: ${{ steps.release.outputs.tag_name }}
-  #   steps:
-  #     - uses: google-github-actions/release-please-action@v3
-  #       id: release
-  #       with:
-  #         release-type: simple
-  #         package-name: tgtg
-  #         version-file: resources/version.txt
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          release-type: simple
+          package-name: tgtg
+          version-file: resources/version.txt
   package:
-    # needs: [release-please]
-    # if: ${{ needs.release-please.outputs.release_created }}
+    needs: [release-please]
+    if: ${{ needs.release-please.outputs.release_created }}
     runs-on: ${{ matrix.OS }}
     strategy:
       matrix:
@@ -60,13 +58,13 @@ jobs:
           path: ${{ matrix.local_path }}
           if-no-files-found: error
           retention-days: 2
-      # - name: Upload release artifacts
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: gh release upload ${{ needs.release-please.outputs.tag_name }} ${{ matrix.local_path }}
+      - name: Upload release artifacts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ needs.release-please.outputs.tag_name }} ${{ matrix.local_path }}
   package-linux:
-    # needs: [release-please]
-    # if: ${{ needs.release-please.outputs.release_created }}
+    needs: [release-please]
+    if: ${{ needs.release-please.outputs.release_created }}
     runs-on: ${{ matrix.OS }}
     strategy:
       matrix:
@@ -146,10 +144,16 @@ jobs:
           path: ${{ matrix.local_path }}
           if-no-files-found: error
           retention-days: 2
+      - name: Upload release artifacts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ needs.release-please.outputs.tag_name }} ${{ matrix.local_path }}
   # https://docs.docker.com/build/ci/github-actions/multi-platform/
   merge:
     runs-on: ubuntu-latest
+    if: ${{ needs.release-please.outputs.release_created }}
     needs:
+      - release-please
       - package-linux
     steps:
       - name: Download digests
@@ -164,12 +168,12 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY_IMAGE }}
-          # type=raw,value=${{ needs.release-please.outputs.tag_name }}
           tags: |
             type=schedule
             type=ref,event=branch
             type=ref,event=tag
             type=ref,event=pr
+            type=raw,value=${{ needs.release-please.outputs.tag_name }}
             type=raw,value=latest
       - name: Log in to the Container registry
         uses: docker/login-action@v2
