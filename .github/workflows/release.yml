@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    types: [synchronize, opened, reopened]
 
 permissions:
   contents: write
@@ -11,21 +13,21 @@ permissions:
   packages: write
 
 jobs:
-  release-please:
-    runs-on: ubuntu-latest
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
-    steps:
-      - uses: google-github-actions/release-please-action@v3
-        id: release
-        with:
-          release-type: simple
-          package-name: tgtg
-          version-file: resources/version.txt
+  # release-please:
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     release_created: ${{ steps.release.outputs.release_created }}
+  #     tag_name: ${{ steps.release.outputs.tag_name }}
+  #   steps:
+  #     - uses: google-github-actions/release-please-action@v3
+  #       id: release
+  #       with:
+  #         release-type: simple
+  #         package-name: tgtg
+  #         version-file: resources/version.txt
   package:
-    needs: [release-please]
-    if: ${{ needs.release-please.outputs.release_created }}
+    # needs: [release-please]
+    # if: ${{ needs.release-please.outputs.release_created }}
     runs-on: ${{ matrix.OS }}
     env:
       REGISTRY: ghcr.io
@@ -60,12 +62,12 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          # type=raw,value=${{ needs.release-please.outputs.tag_name }}
           tags: |
             type=schedule
             type=ref,event=branch
             type=ref,event=tag
             type=ref,event=pr
-            type=raw,value=${{ needs.release-please.outputs.tag_name }}
             type=raw,value=latest
       - uses: coursier/cache-action@v6
       - uses: VirtusLab/scala-cli-setup@v1
@@ -99,13 +101,13 @@ jobs:
           path: ${{ matrix.local_path }}
           if-no-files-found: error
           retention-days: 2
-      - name: Upload release artifacts
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ needs.release-please.outputs.tag_name }} ${{ matrix.local_path }}
+      # - name: Upload release artifacts
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: gh release upload ${{ needs.release-please.outputs.tag_name }} ${{ matrix.local_path }}
   package-arm:
-    needs: [release-please]
-    if: ${{ needs.release-please.outputs.release_created }}
+    # needs: [release-please]
+    # if: ${{ needs.release-please.outputs.release_created }}
     runs-on: ${{ matrix.OS }}
     env:
       REGISTRY: ghcr.io
@@ -135,12 +137,12 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          # type=raw,value=${{ needs.release-please.outputs.tag_name }}
           tags: |
             type=schedule
             type=ref,event=branch
             type=ref,event=tag
             type=ref,event=pr
-            type=raw,value=${{ needs.release-please.outputs.tag_name }}
             type=raw,value=latest
       - uses: coursier/cache-action@v6
       - uses: VirtusLab/scala-cli-setup@v1
@@ -148,7 +150,9 @@ jobs:
           power: true
           jvm: "temurin:17"
       - name: Package app
-        run: scala-cli package . -o "${{ matrix.local_path }}" --assembly
+        run: |
+          mkdir -p artifacts
+          scala-cli package . -o "${{ matrix.local_path }}" --assembly
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
