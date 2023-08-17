@@ -95,6 +95,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.uploaded_filename }}
@@ -112,7 +113,7 @@ jobs:
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}
-      DOCKER_TARGET_PLATFORM: linux/arm/v7
+      DOCKER_TARGET_PLATFORM: linux/arm/v7,linux/arm64/v8
     strategy:
       matrix:
         OS: ["ubuntu-latest"]
