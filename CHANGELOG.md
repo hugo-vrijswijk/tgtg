@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/hugo-vrijswijk/tgtg/compare/v0.4.0...v0.5.0) (2023-08-17)
+
+
+### Features
+
+* add ARM build ([#38](https://github.com/hugo-vrijswijk/tgtg/issues/38)) ([ce9b0aa](https://github.com/hugo-vrijswijk/tgtg/commit/ce9b0aacc89f8d47580d1ff6929ce14981d0be8c))
+
 ## [0.4.0](https://github.com/hugo-vrijswijk/tgtg/compare/v0.3.2...v0.4.0) (2023-08-15)
 
 
