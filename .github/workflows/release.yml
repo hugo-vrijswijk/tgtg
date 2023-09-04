@@ -42,7 +42,7 @@ jobs:
             uploaded_filename: tgtg-win-amd64.exe
             local_path: artifacts/tgtg-win-amd64.exe
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: coursier/cache-action@v6
@@ -80,7 +80,7 @@ jobs:
             uploaded_filename: tgtg.jar
             local_path: artifacts/tgtg.jar
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Log in to the Container registry
