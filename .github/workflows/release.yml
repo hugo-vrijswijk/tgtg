@@ -106,7 +106,7 @@ jobs:
         run: scala-cli package . -o "${{ matrix.local_path }}" --native-image -- -H:IncludeResources=version.txt --static
       - name: Compress artifact
         if: matrix.platforms == 'linux/amd64'
-        uses: crazy-max/ghaction-upx@v2
+        uses: crazy-max/ghaction-upx@v3
         with:
           args: --best
           files: ${{ matrix.local_path }}
