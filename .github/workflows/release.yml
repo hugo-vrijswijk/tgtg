@@ -116,7 +116,7 @@ jobs:
           mkdir -p $(dirname "${{ matrix.local_path }}")
           scala-cli package . -o "${{ matrix.local_path }}" --assembly
       - name: Build and push Docker image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         id: build
         with:
           file: ${{ matrix.platforms == 'linux/amd64' && './Dockerfile' || './arm.Dockerfile' }}
