@@ -21,7 +21,8 @@ final class Auth(tgtg: TooGoodToGo, config: AuthConfig)(using log: Logger[IO]):
 
   // Weird summon is needed for scala-js cross-compilation issues
   def readLine: IO[String] = stdinUtf8[IO](4096)(summon[Async[IO]])
-    .repartition(s => Chunk.array(s.split("\n", -1)))
+    .through(text.lines)
+    .map(_.strip())
     .filter(_.nonEmpty)
     .head
     .compile
