@@ -20,5 +20,5 @@ jobs:
         run: scala-cli fmt --check
       - name: Compile JVM
         run: scala-cli compile . --platform jvm
-      - name: Compile JVM
+      - name: Compile JS
         run: scala-cli compile . --platform js
