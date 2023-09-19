@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/hugo-vrijswijk/tgtg/compare/v0.5.0...v0.5.1) (2023-09-19)
+
+
+### Bug Fixes
+
+* **windows:** fix auth input error ([#48](https://github.com/hugo-vrijswijk/tgtg/issues/48)) ([57b00f2](https://github.com/hugo-vrijswijk/tgtg/commit/57b00f209a7228e2e69807d331bb4cb7f0facb9b))
+
 ## [0.5.0](https://github.com/hugo-vrijswijk/tgtg/compare/v0.4.0...v0.5.0) (2023-08-17)
 
 
