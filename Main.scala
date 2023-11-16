@@ -12,7 +12,7 @@ import tgtg.notification.{Message, Title}
 import scala.concurrent.duration.*
 
 val version = new String(
-  getClass()
+  classOf[Main]
     .getClassLoader()
     .getResourceAsStream("version.txt")
     .readAllBytes()
