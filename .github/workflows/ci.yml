@@ -15,7 +15,7 @@ jobs:
       - uses: VirtusLab/scala-cli-setup@v1
         with:
           power: true
-          jvm: "temurin:17"
+          jvm: "temurin:21"
       - name: Check formatting
         run: scala-cli fmt --check
       - name: Compile JVM
