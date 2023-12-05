@@ -1,0 +1,8 @@
+{
+  "version-file": "resources/version.txt",
+  "packages": {
+    ".": {
+      "package-name": "tgtg"
+    }
+  }
+}

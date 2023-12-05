@@ -25,8 +25,7 @@ jobs:
         id: release
         with:
           release-type: simple
-          package-name: tgtg
-          version-file: resources/version.txt
+          manifest-file: '.github/release-please-manifest.json'
   package:
     needs: [release-please]
     if: ${{ needs.release-please.outputs.release_created }}
