@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/hugo-vrijswijk/tgtg/compare/v0.5.1...v0.5.2) (2023-12-05)
+
+
+### Bug Fixes
+
+* dependency update ([#52](https://github.com/hugo-vrijswijk/tgtg/issues/52)) ([1635a3e](https://github.com/hugo-vrijswijk/tgtg/commit/1635a3e7c6adc7346be244749454b7284772c01b))
+
 ## [0.5.1](https://github.com/hugo-vrijswijk/tgtg/compare/v0.5.0...v0.5.1) (2023-09-19)
 
 
