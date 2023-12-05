@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.4](https://github.com/hugo-vrijswijk/tgtg/compare/v0.5.3...v0.5.4) (2023-12-05)
+
+
+### Bug Fixes
+
+* arm release ([#56](https://github.com/hugo-vrijswijk/tgtg/issues/56)) ([1ee7b71](https://github.com/hugo-vrijswijk/tgtg/commit/1ee7b711f98f5950e4dcf8646781544aa0d9cf07))
+
 ## [0.5.3](https://github.com/hugo-vrijswijk/tgtg/compare/v0.5.2...v0.5.3) (2023-12-05)
 
 
