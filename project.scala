@@ -21,3 +21,6 @@
 //> using option -deprecation
 
 //> using resourceDir ./resources
+
+// Native image version supports max of 17
+//> using option -release 17
