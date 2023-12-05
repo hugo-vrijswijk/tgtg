@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.3](https://github.com/hugo-vrijswijk/tgtg/compare/v0.5.2...v0.5.3) (2023-12-05)
+
+
+### Bug Fixes
+
+* release jdk versions ([#54](https://github.com/hugo-vrijswijk/tgtg/issues/54)) ([80dc102](https://github.com/hugo-vrijswijk/tgtg/commit/80dc1025d7b1e2cc22ba38fcc9a29d9962806081))
+
 ## [0.5.2](https://github.com/hugo-vrijswijk/tgtg/compare/v0.5.1...v0.5.2) (2023-12-05)
 
 
