@@ -99,7 +99,7 @@ jobs:
       - uses: VirtusLab/scala-cli-setup@v1
         with:
           power: true
-          jvm: "temurin:17"
+          jvm: "temurin:21"
       - name: Package app
         if: matrix.platforms == 'linux/amd64'
         run: scala-cli package . -o "${{ matrix.local_path }}" --native-image -- -H:IncludeResources=version.txt --static
