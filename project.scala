@@ -22,5 +22,5 @@
 
 //> using resourceDir ./resources
 
-// Native image version supports max of 17
-//> using option -release 17
+// Native image version supports max of 21
+//> using option -release 21

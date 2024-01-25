@@ -1,5 +1,5 @@
 ARG ARCH=
-FROM ${ARCH}eclipse-temurin:17
+FROM ${ARCH}eclipse-temurin:21
 
 WORKDIR /opt/app
 
