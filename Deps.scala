@@ -78,7 +78,7 @@ final class NoPostfixPrinter(inner: Printer) extends Printer:
 
   class NoPostfixLogInfo(inner: LogInfo) extends LogInfo(inner.enclosingClass, inner.fileName, inner.lineNumber):
     override def postfix: String = ""
-    override def prefix: String  = inner.prefix + s":${lineNumber + 1}"
+    override def prefix: String  = s"${inner.prefix}:${lineNumber + 1}"
 
   override def toPrint(
       epochMillis: EpochMillis,

@@ -1,6 +1,7 @@
 package tgtg.notification
 
 import cats.effect.IO
+import cats.syntax.show.*
 import io.circe.Encoder
 import org.legogroup.woof.{Logger, given}
 import sttp.client4.*
@@ -24,7 +25,7 @@ object NotifyService:
       .responseGetRight
       .body(messageFn(title, message))
       .send(http)
-      .logTimed(s"$name notification")
+      .logTimed(show"$name notification")
       .void
 end NotifyService
 
