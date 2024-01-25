@@ -16,7 +16,7 @@ trait NewType[Wrapped]:
   inline def apply(w: Wrapped): Type = w
 
   // Any typeclass that works for Wrapped also works for NewType
-  given [F[_]](using F[Wrapped]): F[Type]                        = summon
-  given (using CanEqual[Wrapped, Wrapped]): CanEqual[Type, Type] = summon
+  inline given [F[_]](using F[Wrapped]): F[Type]                   = summon
+  inline given [F[_, _]](using F[Wrapped, Wrapped]): F[Type, Type] = summon
 
 end NewType

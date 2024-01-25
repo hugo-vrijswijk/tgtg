@@ -73,7 +73,7 @@ final class Main(config: Config)(using log: Logger[IO]):
           if items.isEmpty then log.info(show"No boxes to notify for (from ${stores.length} stores).")
           else
             items.parTraverse_ : item =>
-              val key = CacheKey(s"gotify-${item.store.store_name}")
+              val key = CacheKey(show"gotify-${item.store.store_name}")
 
               val notificationTimeout = 60.minutes
 
