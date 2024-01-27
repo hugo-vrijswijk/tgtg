@@ -43,11 +43,19 @@ case class GetItemsResponse(items: Seq[ItemWrapper]) derives Decoder
 case class ItemWrapper(item: Item, store: Store, items_available: Int, display_name: String) derives Decoder
 
 given Show[ItemWrapper] = i =>
-  show"${i.store.store_name} has ${if i.item.name.isEmpty then "box" else i.item.name} available for ${i.item.price_including_taxes.toEuros}"
+  show"${i.store.store_name} has ${if i.item.name.isBlank() then "box" else i.item.name} available for ${i.item.item_price}"
 
-case class Item(name: String, price_including_taxes: Price)
-case class Price(minor_units: Int):
-  def toEuros = show"€${minor_units / 100}"
+case class Item(name: String, item_price: Price)
+
+case class Price(code: String, minor_units: Int, decimals: Int)
+
+given Show[Price] = Show.show: price =>
+  val currencySymbol = price.code match
+    case "EUR" => "€"
+    case "USD" => "$"
+    case "GBP" => "£"
+    case _     => price.code
+  show"$currencySymbol ${price.minor_units / math.pow(10, price.decimals)}"
 
 case class Store(store_name: String)
 
