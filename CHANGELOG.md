@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/hugo-vrijswijk/tgtg/compare/v0.5.4...v0.6.0) (2024-01-27)
+
+
+### Features
+
+* show price in correct currency and decimals ([#63](https://github.com/hugo-vrijswijk/tgtg/issues/63)) ([b066fc2](https://github.com/hugo-vrijswijk/tgtg/commit/b066fc2531c78df8d54aff08c52b79adbbed15b6))
+
 ## [0.5.4](https://github.com/hugo-vrijswijk/tgtg/compare/v0.5.3...v0.5.4) (2023-12-05)
 
 
