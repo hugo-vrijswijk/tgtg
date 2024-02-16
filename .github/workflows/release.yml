@@ -32,7 +32,7 @@ jobs:
     runs-on: ${{ matrix.OS }}
     strategy:
       matrix:
-        OS: ["windows-latest", "macos-latest"]
+        OS: ['windows-latest', 'macos-latest']
         include:
           - os: macOS-latest
             uploaded_filename: tgtg-macos-amd64
@@ -48,7 +48,7 @@ jobs:
       - uses: VirtusLab/scala-cli-setup@v1
         with:
           power: true
-          jvm: "temurin:21"
+          jvm: 'temurin:21'
       - name: Package app
         run: scala-cli package . -o "${{ matrix.local_path }}" --native-image --graalvm-args -H:IncludeResources=version.txt
       - uses: actions/upload-artifact@v4
@@ -67,21 +67,19 @@ jobs:
     runs-on: ${{ matrix.OS }}
     strategy:
       matrix:
-        OS: ["ubuntu-latest"]
+        OS: ['ubuntu-latest']
         platforms:
           - linux/amd64
-          - linux/arm/v7
-          - linux/arm64/v8
+          - linux/arm/v7,linux/arm64/v8
         include:
           - platforms: linux/amd64
             uploaded_filename: tgtg-linux-amd64
             local_path: artifacts/tgtg-linux-amd64
-          - platforms: linux/arm/v7
+            digest-artifact: digests-linux-amd64
+          - platforms: linux/arm/v7,linux/arm64/v8
             uploaded_filename: tgtg.jar
             local_path: artifacts/tgtg.jar
-          - platforms: linux/arm64/v8
-            uploaded_filename: tgtg.jar
-            local_path: artifacts/tgtg.jar
+            digest-artifact: digests-linux-arm
     steps:
       - uses: actions/checkout@v4
         with:
@@ -103,7 +101,7 @@ jobs:
       - uses: VirtusLab/scala-cli-setup@v1
         with:
           power: true
-          jvm: "temurin:21"
+          jvm: 'temurin:21'
       - name: Package app
         if: matrix.platforms == 'linux/amd64'
         run: scala-cli package . -o "${{ matrix.local_path }}" --native-image -- -H:IncludeResources=version.txt --static
@@ -123,7 +121,7 @@ jobs:
         id: build
         with:
           file: ${{ matrix.platforms == 'linux/amd64' && './Dockerfile' || './arm.Dockerfile' }}
-          build-args: "LOCAL_PATH=${{ matrix.local_path }}"
+          build-args: 'LOCAL_PATH=${{ matrix.local_path }}'
           context: .
           push: true
           labels: ${{ steps.meta.outputs.labels }}
@@ -137,7 +135,7 @@ jobs:
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
-          name: digests
+          name: ${{ matrix.digest-artifact }}
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1
@@ -161,10 +159,15 @@ jobs:
       - release-please
       - package-linux
     steps:
-      - name: Download digests
+      - name: Download digest - linux/amd64
         uses: actions/download-artifact@v4
         with:
-          name: digests
+          name: digests-linux-amd64
+          path: /tmp/digests
+      - name: Download digest - linux/arm
+        uses: actions/download-artifact@v4
+        with:
+          name: digests-linux-arm
           path: /tmp/digests
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
