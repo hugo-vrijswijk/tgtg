@@ -40,13 +40,6 @@ case class AccessToken(cookies: Cookies, access_token: ApiToken, ttl: FiniteDura
 
 case class GetItemsResponse(items: Seq[ItemWrapper]) derives Decoder
 
-case class ItemWrapper(item: Item, store: Store, items_available: Int, display_name: String) derives Decoder
-
-given Show[ItemWrapper] = i =>
-  show"${i.store.store_name} has ${if i.item.name.isBlank() then "box" else i.item.name} available for ${i.item.item_price}"
-
-case class Item(name: String, item_price: Price)
-
 case class Price(code: String, minor_units: Int, decimals: Int)
 
 given Show[Price] = Show.show: price =>
@@ -56,6 +49,13 @@ given Show[Price] = Show.show: price =>
     case "GBP" => "£"
     case _     => price.code
   show"$currencySymbol ${price.minor_units / math.pow(10, price.decimals)}"
+
+case class ItemWrapper(item: Item, store: Store, items_available: Int, display_name: String) derives Decoder
+
+given Show[ItemWrapper] = i =>
+  show"${i.store.store_name} has ${if i.item.name.isBlank() then "box" else i.item.name} available for ${i.item.item_price}"
+
+case class Item(name: String, item_price: Price)
 
 case class Store(store_name: String)
 

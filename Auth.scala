@@ -20,7 +20,7 @@ final class Auth(tgtg: TooGoodToGo, config: AuthConfig)(using log: Logger[IO]):
     yield ()
 
   // Weird summon is needed for scala-js cross-compilation issues
-  def readLine: IO[String] = stdinUtf8[IO](4096)(summon[Async[IO]])
+  def readLine: IO[String] = stdinUtf8[IO](4096)(using summon[Async[IO]])
     .through(text.lines)
     .map(_.strip())
     .filter(_.nonEmpty)
