@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.2](https://github.com/hugo-vrijswijk/tgtg/compare/v0.6.1...v0.6.2) (2024-02-16)
+
+
+### Bug Fixes
+
+* **docker:** separate digests artifact downloads ([#68](https://github.com/hugo-vrijswijk/tgtg/issues/68)) ([9c9edd7](https://github.com/hugo-vrijswijk/tgtg/commit/9c9edd72d4756258d522f1079f0c1be0a42ea011))
+
 ## [0.6.1](https://github.com/hugo-vrijswijk/tgtg/compare/v0.6.0...v0.6.1) (2024-02-16)
 
 
