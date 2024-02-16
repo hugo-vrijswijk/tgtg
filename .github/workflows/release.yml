@@ -70,12 +70,16 @@ jobs:
         OS: ["ubuntu-latest"]
         platforms:
           - linux/amd64
-          - linux/arm/v7,linux/arm64/v8
+          - linux/arm/v7
+          - linux/arm64/v8
         include:
           - platforms: linux/amd64
             uploaded_filename: tgtg-linux-amd64
             local_path: artifacts/tgtg-linux-amd64
-          - platforms: linux/arm/v7,linux/arm64/v8
+          - platforms: linux/arm/v7
+            uploaded_filename: tgtg.jar
+            local_path: artifacts/tgtg.jar
+          - platforms: linux/arm64/v8
             uploaded_filename: tgtg.jar
             local_path: artifacts/tgtg.jar
     steps:
@@ -138,12 +142,14 @@ jobs:
           if-no-files-found: error
           retention-days: 1
       - uses: actions/upload-artifact@v4
+        if: ${{ matrix.platforms != 'linux/arm64/v8' }}
         with:
           name: ${{ matrix.uploaded_filename }}
           path: ${{ matrix.local_path }}
           if-no-files-found: error
           retention-days: 2
       - name: Upload release artifacts
+        if: ${{ matrix.platforms != 'linux/arm64/v8' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload ${{ needs.release-please.outputs.tag_name }} ${{ matrix.local_path }}
