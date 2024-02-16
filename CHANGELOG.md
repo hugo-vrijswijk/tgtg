@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/hugo-vrijswijk/tgtg/compare/v0.6.0...v0.6.1) (2024-02-16)
+
+
+### Bug Fixes
+
+* **docker:** use separate jobs to build arm architectures ([#66](https://github.com/hugo-vrijswijk/tgtg/issues/66)) ([309513d](https://github.com/hugo-vrijswijk/tgtg/commit/309513d8f6d3dfa85105d494b3243829f8ac09ed))
+
 ## [0.6.0](https://github.com/hugo-vrijswijk/tgtg/compare/v0.5.4...v0.6.0) (2024-01-27)
 
 
