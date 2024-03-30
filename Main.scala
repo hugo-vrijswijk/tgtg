@@ -45,6 +45,7 @@ object Main extends CommandIOApp("tgtg", "TooGoodToGo notifier for your favourit
               .handleErrorWithLog
         end match
 
+    end Main
 end Main
 
 final class Main(config: Config)(using log: Logger[IO]):
