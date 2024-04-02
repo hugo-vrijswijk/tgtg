@@ -20,7 +20,7 @@ val version = new String(
 
 object Main extends CommandIOApp("tgtg", "TooGoodToGo notifier for your favourite stores", version = version):
 
-  override def main: Opts[IO[ExitCode]] = (Config.opts orElse Config.auth).map: config =>
+  override def main: Opts[IO[ExitCode]] = (Config.opts orElse Config.auth).map { config =>
     Deps
       .mkLogger(config.log)
       .flatMap: log =>
@@ -44,8 +44,7 @@ object Main extends CommandIOApp("tgtg", "TooGoodToGo notifier for your favourit
               .as(ExitCode.Success)
               .handleErrorWithLog
         end match
-
-    end Main
+  }
 end Main
 
 final class Main(config: Config)(using log: Logger[IO]):
