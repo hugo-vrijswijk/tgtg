@@ -11,12 +11,7 @@ import tgtg.notification.{Message, Title}
 
 import scala.concurrent.duration.*
 
-val version = new String(
-  classOf[Main]
-    .getClassLoader()
-    .getResourceAsStream("version.txt")
-    .readAllBytes()
-).trim()
+val version = "dev"
 
 object Main extends CommandIOApp("tgtg", "TooGoodToGo notifier for your favourite stores", version = version):
 

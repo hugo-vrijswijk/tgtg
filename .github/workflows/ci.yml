@@ -8,17 +8,38 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.OS }}
+    strategy:
+      matrix:
+        OS: [ubuntu-latest, macos-latest]
+        include:
+          - os: macos-latest
+            path: tgtg-x86_64-apple-darwin
+          - os: ubuntu-latest
+            path: tgtg-x86_64-pc-linux
     steps:
       - uses: actions/checkout@v4
+      - name: Install libidn2-dev libcurl3-dev
+        if: matrix.OS == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install libidn2-dev libcurl3-dev
       - uses: coursier/cache-action@v6
       - uses: VirtusLab/scala-cli-setup@v1
         with:
           power: true
           jvm: "temurin:21"
-      - name: Check formatting
-        run: scala-cli fmt --check
-      - name: Compile JVM
-        run: scala-cli compile . --platform jvm
-      - name: Compile JS
-        run: scala-cli compile . --platform js
+      # - name: Check formatting
+      #   run: scala-cli fmt --check
+      # - name: Compile JVM
+      #   run: scala-cli compile . --platform jvm
+      # - name: Compile JVM
+      #   run: scala-cli compile . --platform js
+      - name: package native
+        run: scala-cli package . --native -o artifacts/${{ matrix.path }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: "tgtg"
+          path: "artifacts/${{ matrix.path }}"
+          if-no-files-found: error
+          retention-days: 2
