@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/hugo-vrijswijk/tgtg/compare/v0.6.2...v0.7.0) (2024-04-30)
+
+
+### Features
+
+* build macos aarch64 ([#77](https://github.com/hugo-vrijswijk/tgtg/issues/77)) ([888fd44](https://github.com/hugo-vrijswijk/tgtg/commit/888fd4411719a01594021523bf5c9656a9c2796d))
+
 ## [0.6.2](https://github.com/hugo-vrijswijk/tgtg/compare/v0.6.1...v0.6.2) (2024-02-16)
 
 
