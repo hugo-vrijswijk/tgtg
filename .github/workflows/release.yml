@@ -35,8 +35,8 @@ jobs:
         OS: ['windows-latest', 'macos-latest']
         include:
           - os: macOS-latest
-            uploaded_filename: tgtg-macos-amd64
-            local_path: artifacts/tgtg-macos-amd64
+            uploaded_filename: tgtg-macos-aaarch64
+            local_path: artifacts/tgtg-macos-aaarch64
           - os: windows-latest
             uploaded_filename: tgtg-win-amd64.exe
             local_path: artifacts/tgtg-win-amd64.exe
