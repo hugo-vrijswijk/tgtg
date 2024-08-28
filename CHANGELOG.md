@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.0](https://github.com/hugo-vrijswijk/tgtg/compare/v0.7.0...v1.0.0) (2024-08-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* The `--server` flag is deprecated. Use `--interval` or `--cron` options instead. When not used with `--interval` or `--cron`, it will use a default of 5 minutes.
+
+### Features
+
+* add support for CRON schedules ([#85](https://github.com/hugo-vrijswijk/tgtg/issues/85)) ([522275f](https://github.com/hugo-vrijswijk/tgtg/commit/522275f9e713ebc05a7f239b0c2c481ca7873dc8))
+
 ## [0.7.0](https://github.com/hugo-vrijswijk/tgtg/compare/v0.6.2...v0.7.0) (2024-04-30)
 
 
