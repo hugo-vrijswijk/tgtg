@@ -1,10 +1,9 @@
 package tgtg
 
-import cats.effect.{ExitCode, IO, Resource}
+import cats.effect.{ExitCode, IO}
 import cats.syntax.all.*
 import com.monovore.decline.Opts
 import com.monovore.decline.effect.CommandIOApp
-import fs2.Stream
 import org.legogroup.woof.{Logger, given}
 import tgtg.cache.CacheKey
 import tgtg.notification.{Message, Title}
