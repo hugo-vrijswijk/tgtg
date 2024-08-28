@@ -23,7 +23,7 @@ class RedisCacheService(client: RedisConnection[IO])(using log: Logger[IO]) exte
       .get[RedisF](key)
       .run(client)
       .flatMap(_.traverse(t => IO.fromEither(decode[T](t))))
-      .handleErrorWith(e => log.error(show"Failed to get key '$key': $e").as(none))
+      .handleErrorWith(e => log.error(show"Failed to get key '$key': ${e.getMessage()}").as(none))
       .logTimed(show"getting '$key'")
 
   def set[T: Encoder](value: T, key: CacheKey, ttl: FiniteDuration): IO[Unit] =
@@ -31,7 +31,7 @@ class RedisCacheService(client: RedisConnection[IO])(using log: Logger[IO]) exte
       .set[RedisF](key, value.asJson.noSpaces, SetOpts.default.copy(setSeconds = ttl.toSeconds.some))
       .run(client)
       .redeemWith(
-        e => log.error(show"Failed to set key '$key': $e").void,
+        e => log.error(show"Failed to set key '$key': ${e.getMessage()}").void,
         _ => IO.unit
       )
       .logTimed(show"setting '$key' with ttl of $ttl")
