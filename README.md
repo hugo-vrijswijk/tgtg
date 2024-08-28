@@ -11,7 +11,7 @@ The TooGoodToGo Notifier is a simple yet powerful application designed to keep y
 ### Key Features
 
 - Instant notifications when your favorite TooGoodToGo stores have boxes available.
-- Flexibility to run the application as a one-time check or continuously in server mode with a customizable interval.
+- Flexibility to run as a one-time check or continuously with customizable intervals or CRON schedules.
 - Option to utilize Redis for data storage, enabling stateless application runs.
 
 ## Getting Started
@@ -46,7 +46,7 @@ $ docker run ghcr.io/hugo-vrijswijk/tgtg:latest
 The application operates in two modes:
 
 1. **One-shot Mode**: Checks for boxes once and then exits.
-2. **Server Mode**: Continuously monitors for boxes at a customizable interval (default: 5 minutes) without exiting.
+2. **Server Mode**: Continuously monitors for boxes at [configured schedules](#schedules) without exiting.
 
 To run the application, provide your TooGoodToGo user ID and refresh token as environment variables (`TGTG_USER_ID` and `TGTG_REFRESH_TOKEN`) or as arguments (`--user-id` and `--refresh-token`) and a [notification provider](#notifications).
 
@@ -67,6 +67,21 @@ Choose your preferred notification platform for available box alerts:
   - This will send a POST request to the URL with a JSON body containing a `title` and `message`.
 
 Each of these options can also be set as environment variables (in `SCREAMING_SNAKE_CASE`).
+
+### Schedules
+
+To enable server mode, specify intervals or CRON schedules for checking TooGoodToGo boxes:
+
+- Intervals: `--interval <duration>` (e.g., `--interval 5m` for every 5 minutes).
+- CRON Schedules: `--cron <cron>` (e.g., `--cron "0 0 0 * * ?"` for every day at midnight).
+
+`tgtg` will run immediately, and then at the specified intervals or CRON schedules.
+
+Intervals and CRON schedules can be combined as many times as needed. For example:
+
+```bash
+$ tgtg --interval 5m --cron "0 0 0 * * ?" --cron "0 0 12 * * ?"
+```
 
 ### Utilizing Redis for Application State (advanced)
 

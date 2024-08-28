@@ -9,14 +9,15 @@ import scala.concurrent.duration.FiniteDuration
 
 extension (duration: FiniteDuration)
   final def toHumanReadable: String =
-    val units = Seq(TimeUnit.DAYS, TimeUnit.HOURS, TimeUnit.MINUTES, TimeUnit.SECONDS, TimeUnit.MILLISECONDS)
+    val units = Seq(TimeUnit.DAYS, TimeUnit.HOURS, TimeUnit.MINUTES, TimeUnit.SECONDS)
 
+    val secondsRounded = (duration.toMillis.toFloat / 1000).round.toLong
     val timeStrings = units
-      .foldLeft((Chain.empty[String], duration.toMillis)):
+      .foldLeft((Chain.empty[String], secondsRounded)):
         case ((humanReadable, rest), unit) =>
           val name   = unit.toString().toLowerCase()
-          val result = unit.convert(rest, TimeUnit.MILLISECONDS)
-          val diff   = rest - TimeUnit.MILLISECONDS.convert(result, unit)
+          val result = unit.convert(rest, TimeUnit.SECONDS)
+          val diff   = rest - TimeUnit.SECONDS.convert(result, unit)
           val str = result match
             case 0    => humanReadable
             case 1    => humanReadable :+ show"1 ${name.init}" // Drop last 's'

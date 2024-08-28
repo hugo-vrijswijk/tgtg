@@ -1,9 +1,13 @@
 package tgtg
 
+import cats.data.{Ior, NonEmptyList}
 import cats.effect.{ExitCode, IO}
 import cats.syntax.all.*
 import com.monovore.decline.Opts
 import com.monovore.decline.effect.CommandIOApp
+import cron4s.CronExpr
+import eu.timepit.fs2cron.cron4s.Cron4sScheduler
+import fs2.Stream
 import org.legogroup.woof.{Logger, given}
 import tgtg.cache.CacheKey
 import tgtg.notification.{Message, Title}
@@ -38,24 +42,60 @@ object Main extends CommandIOApp("tgtg", "TooGoodToGo notifier for your favourit
 
           case config: Config =>
             val main = new Main(config)
-            config.server
-              .fold(main.run)(main.loop(_).guarantee(log.info("Shutting down") *> log.info("Bye!")))
-              .as(ExitCode.Success)
-              .handleErrorWithLog
+
+            main.logDeprecations
+              *> main.runOrServer
+                .as(ExitCode.Success)
+                .handleErrorWithLog
         end match
   }
 end Main
 
 final class Main(config: Config)(using log: Logger[IO]):
 
+  def runOrServer =
+    config.server match
+      // isServer is deprecated, but used: run with default interval
+      case ServerConfig(None, None, true) =>
+        loop(NonEmptyList.of(5.minutes.asLeft))
+      case ServerConfig(intervals, crons, _) =>
+        // If intervals or crons is defined, run with them. Otherwise, run once
+        Ior
+          .fromOptions(intervals, crons)
+          .map: ior =>
+            val nel = ior.bimap(_.map(_.asLeft), _.map(_.asRight)).merge
+
+            loop(nel)
+          .getOrElse(run)
+
   /** Run the main loop (log errors, never exit)
     */
-  def loop(server: ServerConfig): IO[Unit] = fs2.Stream
-    .repeatEval(run.handleErrorWithLog)
-    .evalTap(_ => log.info(show"Sleeping for ${server.interval}"))
-    .meteredStartImmediately(server.interval)
-    .compile
-    .drain
+  def loop(intervals: NonEmptyList[Either[FiniteDuration, CronExpr]]): IO[Unit] =
+    val scheduler = Cron4sScheduler.systemDefault[IO]
+
+    // Run, and find the minimum next interval and log it
+    val runAndLog: IO[Unit] = run.handleErrorWithLog.void >> (
+      intervals
+        .parTraverse(_.fold(_.pure[IO], scheduler.fromNowUntilNext))
+        .map(_.minimum)
+        .flatMap(nextInterval => log.info(show"Sleeping for $nextInterval"))
+    )
+
+    val streams: List[Stream[IO, Unit]] = intervals
+      .map(
+        _.fold(
+          Stream.awakeEvery[IO](_),
+          scheduler.awakeEvery(_)
+        ) >> Stream.eval(runAndLog)
+      )
+      .toList
+
+    // Run for the first time, then run every interval
+    (log.info("Starting tgtg notifier") *>
+      log.info(show"Intervals: ${intervals.map(_.fold(_.show, _.show)).mkString_(", ")}") *>
+      runAndLog *> Stream.emits(streams).parJoinUnbounded.compile.drain)
+      .guarantee(log.info("Shutting down") *> log.info("Bye!"))
+  end loop
 
   /** Run once
     */
@@ -93,4 +133,7 @@ final class Main(config: Config)(using log: Logger[IO]):
                 )
           end if
 
+  def logDeprecations = IO.whenA(config.server.isServer)(
+    log.warn("The --server flag is deprecated. Use --interval or --cron options instead.")
+  )
 end Main

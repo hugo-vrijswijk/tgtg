@@ -1,8 +1,10 @@
 package tgtg
 
+import cats.data.NonEmptyList
 import cats.syntax.all.*
 import com.comcast.ip4s.{Host, *}
-import com.monovore.decline.{Argument, Opts}
+import com.monovore.decline.{Argument, Opts, Visibility}
+import cron4s.{Cron, CronExpr}
 import org.legogroup.woof.LogLevel
 import sttp.model.Uri
 import tgtg.notification.NotifyConfig
@@ -17,7 +19,11 @@ type ApiToken = ApiToken.Type
 
 case class TgtgConfig(refreshToken: ApiToken, userId: UserId)
 case class RedisConfig(host: Host)
-case class ServerConfig(interval: FiniteDuration)
+case class ServerConfig(
+    intervals: Option[NonEmptyList[FiniteDuration]],
+    crons: Option[NonEmptyList[CronExpr]],
+    isServer: Boolean
+)
 
 object Email extends NewType[String]
 type Email = Email.Type
@@ -32,7 +38,7 @@ case class Config(
     notification: NotifyConfig,
     cronitor: Option[ApiToken],
     redis: Option[RedisConfig],
-    server: Option[ServerConfig],
+    server: ServerConfig,
     log: LogLevel
 ) extends BaseConfig
 
@@ -68,6 +74,13 @@ object Config:
     private given Argument[ApiToken] = Argument.from("token")(ApiToken(_).validNel)
     private given Argument[Email]    = Argument.from("email")(Email(_).validNel)
     private given Argument[UserId]   = Argument.from("user_id")(UserId(_).validNel)
+
+    private given Argument[CronExpr] = Argument.from("cron")(c =>
+      Cron
+        .parse(c)
+        .leftMap(e => show"Invalid cron '$c': $e")
+        .toValidatedNel
+    )
 
     private val refreshHelp =
       "Refresh token for TooGoodToGo. Get it using the `tgtg auth` command."
@@ -130,13 +143,16 @@ object Config:
         Opts.env[LogLevel]("LOG_LEVEL", "Set the log level (debug, info, warn, error).", "log_level")
     ).withDefault(LogLevel.Info)
 
-    private val isServer = Opts.flag("server", "Run as a server (don't exit after the first run).", "s")
-    private val interval =
-      Opts
-        .option[FiniteDuration]("interval", "Time interval between checks for available boxes.", "i")
-        .withDefault(5.minutes)
+    private val intervals =
+      Opts.options[FiniteDuration]("interval", "Time interval between checks for available boxes.", "i").orNone
 
-    val server = (isServer, interval).mapN((_, interval) => ServerConfig(interval)).orNone
+    private val crons =
+      Opts.options[CronExpr]("cron", "Cron expression for when to check for available boxes.", "c").orNone
+
+    private val isServer =
+      Opts.flag("server", "DEPRECATED. Use --interval or --cron options", "s", Visibility.Partial).orFalse
+
+    val server = (intervals, crons, isServer).mapN(ServerConfig.apply)
 
     val userEmail = Opts.option[Email]("user-email", "Email to use for authentication (optional).").orNone
   end allOpts

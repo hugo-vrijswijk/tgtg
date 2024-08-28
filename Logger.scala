@@ -37,7 +37,7 @@ extension [T](fa: IO[T])
     fa.handleErrorWith(t =>
       debugLogStacktrace(t) *>
         Logger[IO].error(t.getMessage()) *>
-        IO.whenA(t.getCause() != null)(Logger[IO].error(show"Caused by: ${t.getCause()}"))
+        IO.whenA(t.getCause() != null)(Logger[IO].error(show"Caused by: ${t.getCause().toString()}"))
           .as(ExitCode.Error)
     )
 
