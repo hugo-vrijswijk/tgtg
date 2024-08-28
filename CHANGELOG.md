@@ -2,6 +2,11 @@
 
 ## [1.0.0](https://github.com/hugo-vrijswijk/tgtg/compare/v0.7.0...v1.0.0) (2024-08-28)
 
+This release adds support for CRON schedules. CRON schedules (`--cron`) and intervals (`--interval`) can be combined multiple times for complex scheduling:
+
+```bash
+$ tgtg --interval 5m --cron "0 0 0 * * ?" --cron "0 0 12 * * ?"
+```
 
 ### ⚠ BREAKING CHANGES
 
@@ -10,6 +15,7 @@
 ### Features
 
 * add support for CRON schedules ([#85](https://github.com/hugo-vrijswijk/tgtg/issues/85)) ([522275f](https://github.com/hugo-vrijswijk/tgtg/commit/522275f9e713ebc05a7f239b0c2c481ca7873dc8))
+* allow combining multiple intervals and CRON schedules ([#85](https://github.com/hugo-vrijswijk/tgtg/issues/85)) ([522275f](https://github.com/hugo-vrijswijk/tgtg/commit/522275f9e713ebc05a7f239b0c2c481ca7873dc8))
 
 ## [0.7.0](https://github.com/hugo-vrijswijk/tgtg/compare/v0.6.2...v0.7.0) (2024-04-30)
 
