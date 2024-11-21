@@ -1,5 +1,5 @@
 //> using scala "3"
-//> using dep "org.typelevel::cats-effect::3.5.5"
+//> using dep "org.typelevel::cats-effect::3.5.6"
 //> using dep "co.fs2::fs2-core::3.11.0"
 //> using dep "co.fs2::fs2-io::3.11.0"
 //> using dep "com.softwaremill.sttp.client4::circe::4.0.0-M19"
