@@ -25,7 +25,7 @@ object Deps:
           _,
           new LogWrapper,
           LogConfig(sensitiveHeaders =
-            HeaderNames.SensitiveHeaders ++ Set("X-Gotify-Key", "x-amz-cf-id", "x-correlation-id")
+            HeaderNames.SensitiveHeaders ++ Set("X-Gotify-Key", "Access-Token", "x-amz-cf-id", "x-correlation-id")
           )
         )
       )
