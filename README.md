@@ -48,7 +48,7 @@ The application operates in two modes:
 1. **One-shot Mode**: Checks for boxes once and then exits.
 2. **Server Mode**: Continuously monitors for boxes at [configured schedules](#schedules) without exiting.
 
-To run the application, provide your TooGoodToGo user ID and refresh token as environment variables (`TGTG_USER_ID` and `TGTG_REFRESH_TOKEN`) or as arguments (`--user-id` and `--refresh-token`) and a [notification provider](#notifications).
+To run the application, provide your TooGoodToGo and refresh token as environment variables (`TGTG_REFRESH_TOKEN`) or as arguments (`--refresh-token`) and a [notification provider](#notifications).
 
 For detailed information about available options, use the following command:
 

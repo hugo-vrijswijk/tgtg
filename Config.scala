@@ -17,7 +17,7 @@ type UserId = UserId.Type
 object ApiToken extends NewType[String]
 type ApiToken = ApiToken.Type
 
-case class TgtgConfig(refreshToken: ApiToken, userId: UserId)
+case class TgtgConfig(refreshToken: ApiToken)
 case class RedisConfig(host: Host)
 case class ServerConfig(
     intervals: Option[NonEmptyList[FiniteDuration]],
@@ -73,7 +73,6 @@ object Config:
 
     private given Argument[ApiToken] = Argument.from("token")(ApiToken(_).validNel)
     private given Argument[Email]    = Argument.from("email")(Email(_).validNel)
-    private given Argument[UserId]   = Argument.from("user_id")(UserId(_).validNel)
 
     private given Argument[CronExpr] = Argument.from("cron")(c =>
       Cron
@@ -87,10 +86,6 @@ object Config:
     private val refreshToken =
       Opts.option[ApiToken]("refresh-token", refreshHelp, "r") orElse
         Opts.env[ApiToken]("TGTG_REFRESH_TOKEN", refreshHelp)
-
-    private val userIdHelp =
-      "User id for TooGoodToGo. Get it using the `tgtg auth` command."
-    val userId = Opts.option[UserId]("user-id", userIdHelp, "u") orElse Opts.env[UserId]("TGTG_USER_ID", userIdHelp)
 
     private val gotifyHelp = "Gotify token for notifications (optional)."
     private val gotifyToken =
@@ -127,7 +122,7 @@ object Config:
     val cronitor = (Opts.option[ApiToken]("cronitor-token", cronitorHelp) orElse
       Opts.env[ApiToken]("CRONITOR_TOKEN", cronitorHelp)).orNone
 
-    val tgtg = (refreshToken, userId).mapN(TgtgConfig.apply)
+    val tgtg = refreshToken.map(TgtgConfig.apply)
 
     private val redisHostHelp =
       "Specify the Redis host for storing authentication tokens and notification history cache. If not set a local cache.json file will be used instead."

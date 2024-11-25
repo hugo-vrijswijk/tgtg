@@ -14,17 +14,17 @@ import scala.concurrent.duration.*
 
 class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
   private val baseUri          = uri"https://apptoogoodtogo.com/api/"
-  private val refreshEndpoint  = uri"${baseUri}auth/v3/token/refresh"
+  private val refreshEndpoint  = uri"${baseUri}auth/v4/token/refresh"
   private val itemsEndpoint    = uri"${baseUri}item/v8/"
-  private val loginEndpoint    = uri"${baseUri}auth/v3/authByEmail"
-  private val authPollEndpoint = uri"${baseUri}auth/v3/authByRequestPollingId"
+  private val loginEndpoint    = uri"${baseUri}auth/v4/authByEmail"
+  private val authPollEndpoint = uri"${baseUri}auth/v4/authByRequestPollingId"
 
   def getItems(cache: CacheService, config: TgtgConfig) =
     def retrieveItems(access: AccessToken) =
       headers()
         .flatMap(baseHeaders =>
           basicRequest
-            .body(GetItemsRequest(config.userId))
+            .body(GetItemsRequest())
             .post(itemsEndpoint)
             .cookies(access.cookies.toSeq*)
             .headers(baseHeaders*)
@@ -62,7 +62,7 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
         )
       )
 
-    cache.retrieveOrSet(action, CacheKey(s"tgtg-accessToken/${config.userId}"), a => a.ttl / 4 * 3)
+    cache.retrieveOrSet(action, CacheKey(s"tgtg/accessToken"), a => a.ttl / 4 * 3)
   end getAccessToken
 
   def getCredentials(email: Email): IO[TgtgConfig] =
@@ -107,7 +107,7 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
                   pollRequest.flatMap {
                     case None => IO.sleep(pollSleep) >> poll(triesLeft - 1)
                     case Some(value) =>
-                      TgtgConfig(refreshToken = value.refresh_token, userId = value.startup_data.user.user_id).pure
+                      TgtgConfig(refreshToken = value.refresh_token).pure
                   }
               log.info(
                 "Check your mailbox on PC to continue... (Mailbox on mobile won't work, if you have installed tgtg app.)\n"

@@ -14,8 +14,7 @@ final class Auth(tgtg: TooGoodToGo, config: AuthConfig)(using log: Logger[IO]):
         case None        => log.info("TooGoodToGo email:") *> readLine
         case Some(value) => value.pure[IO]
       creds <- tgtg.getCredentials(Email(email))
-      _ <- log.info(show"user-id: ${creds.userId}") *>
-        log.info(show"refresh-token: ${creds.refreshToken}") *>
+      _ <- log.info(show"refresh-token: ${creds.refreshToken}") *>
         log.info(show"Use these credentials as config (arguments or environment variables)")
     yield ()
 
