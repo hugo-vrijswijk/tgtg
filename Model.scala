@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
 
 case class GetItemsRequest(
-    user_id: UserId,
     origin: Origin = Origin(),
     // radius: Int = 21,
     page: Int = 1,
@@ -65,9 +64,7 @@ case class LoginResponse(state: String, polling_id: Option[String]) derives Deco
 case class PollRequest(email: Email, request_polling_id: String, device_type: String = "ANDROID")
     derives Encoder.AsObject
 
-case class PollResponse(refresh_token: ApiToken, startup_data: StartupData) derives Decoder
-case class StartupData(user: StartupUser) derives Decoder
-case class StartupUser(user_id: UserId) derives Decoder
+case class PollResponse(refresh_token: ApiToken) derives Decoder
 
 given Codec[FiniteDuration] =
   Codec.from(
