@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/hugo-vrijswijk/tgtg/compare/v1.0.0...v1.0.1) (2024-11-25)
+
+
+### Bug Fixes
+
+* add Access-Token to sensitive headers config ([#93](https://github.com/hugo-vrijswijk/tgtg/issues/93)) ([45dc1a0](https://github.com/hugo-vrijswijk/tgtg/commit/45dc1a00ba8f96924bc6af27f4cca513adafd1fb))
+* use new tgtg auth mechanism ([#92](https://github.com/hugo-vrijswijk/tgtg/issues/92)) ([79b4eb1](https://github.com/hugo-vrijswijk/tgtg/commit/79b4eb1c298f885780b9ef27a793bb6a6d431997))
+
 ## [1.0.0](https://github.com/hugo-vrijswijk/tgtg/compare/v0.7.0...v1.0.0) (2024-08-28)
 
 This release adds support for CRON schedules. CRON schedules (`--cron`) and intervals (`--interval`) can be combined multiple times for complex scheduling:
