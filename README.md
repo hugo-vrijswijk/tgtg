@@ -16,7 +16,7 @@ The TooGoodToGo Notifier is a simple yet powerful application designed to keep y
 
 ## Getting Started
 
-Before using the application, you'll need your TooGoodToGo user ID and refresh token. If you don't have them yet, you can obtain them with this command:
+Before using the application, you'll need your TooGoodToGo refresh token. If you don't have it yet, you can obtain it with this command:
 
 ```bash
 $ tgtg auth
@@ -28,7 +28,7 @@ For Docker users, you can run the command within a Docker container:
 $ docker run -it --rm ghcr.io/hugo-vrijswijk/tgtg:latest auth
 ```
 
-The command will guide you through obtaining your user ID and refresh token.
+The command will guide you through obtaining your refresh token.
 
 ### Installation
 
@@ -48,7 +48,7 @@ The application operates in two modes:
 1. **One-shot Mode**: Checks for boxes once and then exits.
 2. **Server Mode**: Continuously monitors for boxes at [configured schedules](#schedules) without exiting.
 
-To run the application, provide your TooGoodToGo and refresh token as environment variables (`TGTG_REFRESH_TOKEN`) or as arguments (`--refresh-token`) and a [notification provider](#notifications).
+To run the application, provide your TooGoodToGo refresh token as environment variable (`TGTG_REFRESH_TOKEN`) or as argument (`--refresh-token`) and a [notification provider](#notifications).
 
 For detailed information about available options, use the following command:
 
