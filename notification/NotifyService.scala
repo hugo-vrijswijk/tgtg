@@ -22,8 +22,8 @@ object NotifyService:
     basicRequest
       .post(uri)
       .headers(headers*)
-      .responseGetRight
-      .body(messageFn(title, message))
+      .response(asStringOrFail)
+      .body(asJson(messageFn(title, message)))
       .send(http)
       .logTimed(show"$name notification")
       .void

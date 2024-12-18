@@ -13,7 +13,7 @@ def cronitor(http: Backend[IO], cronitorToken: ApiToken): Resource[IO, Unit] =
     val cronitorUri = uri"https://cronitor.link/p/$cronitorToken?state=$state&message=$message"
     basicRequest
       .post(cronitorUri)
-      .responseGetRight
+      .response(asStringOrFail)
       .send(http)
       .void
 
