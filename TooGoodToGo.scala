@@ -24,14 +24,13 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
       headers()
         .flatMap(baseHeaders =>
           basicRequest
-            .body(GetItemsRequest())
+            .body(asJson(GetItemsRequest()))
             .post(itemsEndpoint)
             .cookies(access.cookies.toSeq*)
             .headers(baseHeaders*)
             .auth
             .bearer(access.access_token)
-            .response(asJson[GetItemsResponse])
-            .responseGetRight
+            .response(asJsonOrFail[GetItemsResponse])
             .send(http)
         )
         .map(_.body.items)
@@ -45,11 +44,10 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
     val action = headers()
       .flatMap: baseHeaders =>
         basicRequest
-          .body(RefreshRequest(config.refreshToken))
+          .body(asJson(RefreshRequest(config.refreshToken)))
           .post(refreshEndpoint)
-          .response(asJson[RefreshResponse])
+          .response(asJsonOrFail[RefreshResponse])
           .headers(baseHeaders*)
-          .responseGetRight
           .send(http)
       .map(r =>
         AccessToken(
@@ -68,11 +66,10 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
   def getCredentials(email: Email): IO[TgtgConfig] =
     headers().flatMap: baseHeaders =>
       basicRequest
-        .body(LoginRequest(email))
+        .body(asJson(LoginRequest(email)))
         .post(loginEndpoint)
-        .response(asJson[LoginResponse])
+        .response(asJsonOrFail[LoginResponse])
         .headers(baseHeaders*)
-        .responseGetRight
         .send(http)
         .flatMap: r =>
           r.code match
@@ -88,11 +85,10 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
               val pollId         = r.body.polling_id.get
 
               val pollRequest: IO[Option[PollResponse]] = basicRequest
-                .body(PollRequest(email, pollId))
+                .body(asJson(PollRequest(email, pollId)))
                 .post(authPollEndpoint)
-                .response(asJson[Option[PollResponse]])
+                .response(asJsonOrFail[Option[PollResponse]])
                 .headers(baseHeaders*)
-                .responseGetRight
                 .send(http)
                 .logTimed("poll")
                 .flatMap: response =>
