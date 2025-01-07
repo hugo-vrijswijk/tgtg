@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/hugo-vrijswijk/tgtg/compare/v1.0.1...v1.0.2) (2025-01-07)
+
+
+### Bug Fixes
+
+* use new auth endpoint version and user agents ([#100](https://github.com/hugo-vrijswijk/tgtg/issues/100)) ([5ecf02d](https://github.com/hugo-vrijswijk/tgtg/commit/5ecf02d38d7cf5211af06b96b8f2e8e97a510f06))
+
 ## [1.0.1](https://github.com/hugo-vrijswijk/tgtg/compare/v1.0.0...v1.0.1) (2024-11-25)
 
 
