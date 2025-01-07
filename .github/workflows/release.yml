@@ -161,16 +161,12 @@ jobs:
       - release-please
       - package-linux
     steps:
-      - name: Download digest - linux/amd64
+      - name: Download digests
         uses: actions/download-artifact@v4
         with:
-          name: digests-linux-amd64
           path: /tmp/digests
-      - name: Download digest - linux/arm
-        uses: actions/download-artifact@v4
-        with:
-          name: digests-linux-arm
-          path: /tmp/digests
+          pattern: digests-*
+          merge-multiple: true
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Docker meta
