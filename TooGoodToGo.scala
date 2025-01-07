@@ -14,10 +14,10 @@ import scala.concurrent.duration.*
 
 class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
   private val baseUri          = uri"https://apptoogoodtogo.com/api/"
-  private val refreshEndpoint  = uri"${baseUri}auth/v4/token/refresh"
+  private val refreshEndpoint  = uri"${baseUri}auth/v5/token/refresh"
   private val itemsEndpoint    = uri"${baseUri}item/v8/"
-  private val loginEndpoint    = uri"${baseUri}auth/v4/authByEmail"
-  private val authPollEndpoint = uri"${baseUri}auth/v4/authByRequestPollingId"
+  private val loginEndpoint    = uri"${baseUri}auth/v5/authByEmail"
+  private val authPollEndpoint = uri"${baseUri}auth/v5/authByRequestPollingId"
 
   def getItems(cache: CacheService, config: TgtgConfig) =
     def retrieveItems(access: AccessToken) =
@@ -125,9 +125,9 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
     )
 
   private def userAgents = List(
-    "TGTG/23.6.11 Dalvik/2.1.0 (Linux; U; Android 9; Nexus 5 Build/M4B30Z)",
-    "TGTG/23.6.11 Dalvik/2.1.0 (Linux; U; Android 10; SM-G935F Build/NRD90M)",
-    "TGTG/23.6.11 Dalvik/2.1.0 (Linux; Android 12; SM-G920V Build/MMB29K)"
+    "TGTG/24.11.0 Dalvik/2.1.0 (Linux; U; Android 9; Nexus 5 Build/M4B30Z)",
+    "TGTG/24.11.0 Dalvik/2.1.0 (Linux; U; Android 10; SM-G935F Build/NRD90M)",
+    "TGTG/24.11.0 Dalvik/2.1.0 (Linux; Android 12; SM-G920V Build/MMB29K)"
   )
 
 end TooGoodToGo
