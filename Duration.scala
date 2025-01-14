@@ -32,3 +32,4 @@ extension (duration: FiniteDuration)
         val (strings, last) = timeStrings.initLast.get
         strings.mkString_(", ") + " and " + last
     end match
+end extension
