@@ -11,8 +11,12 @@ import java.io.{PrintWriter, StringWriter}
 class LogWrapper(using inner: Logger[IO]) extends sttp.client4.logging.Logger[IO]:
   import org.legogroup.woof.given
 
-  override def apply(level: SttpLogLevel, message: => String, context: Map[String, Any]): IO[Unit] =
-    inner.doLog(matchLevel(level), message)
+  override def apply(
+      level: SttpLogLevel,
+      message: => String,
+      throwable: Option[Throwable],
+      context: Map[String, Any]
+  ): IO[Unit] = inner.doLog(matchLevel(level), throwable.fold(message)(t => show"$message ${t.toString()}"))
 
   private def matchLevel(level: SttpLogLevel): LogLevel = level match
     case SttpLogLevel.Trace => LogLevel.Trace
@@ -20,9 +24,6 @@ class LogWrapper(using inner: Logger[IO]) extends sttp.client4.logging.Logger[IO
     case SttpLogLevel.Info  => LogLevel.Info
     case SttpLogLevel.Warn  => LogLevel.Warn
     case SttpLogLevel.Error => LogLevel.Error
-
-  override def apply(level: SttpLogLevel, message: => String, t: Throwable, context: Map[String, Any]): IO[Unit] =
-    inner.doLog(matchLevel(level), show"$message ${t.toString()}")
 
 end LogWrapper
 
