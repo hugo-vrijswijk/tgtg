@@ -68,8 +68,7 @@ object Config:
       case "info"  => LogLevel.Info.validNel
       case "warn"  => LogLevel.Warn.validNel
       case "error" => LogLevel.Error.validNel
-      case other   => show"Invalid log level $other. Should be one of 'debug', 'info', 'warn' or 'error'".invalidNel
-    )
+      case other   => show"Invalid log level $other. Should be one of 'debug', 'info', 'warn' or 'error'".invalidNel)
 
     private given Argument[ApiToken] = Argument.from("token")(ApiToken(_).validNel)
     private given Argument[Email]    = Argument.from("email")(Email(_).validNel)

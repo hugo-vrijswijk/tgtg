@@ -83,3 +83,4 @@ extension [T: Encoder](data: T)
       .through(Files[IO].writeAll(path, flags))
       .compile
       .drain
+end extension
