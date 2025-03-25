@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/hugo-vrijswijk/tgtg/compare/v1.0.2...v1.0.3) (2025-03-25)
+
+
+### Bug Fixes
+
+* update token refresh endpoint ([#118](https://github.com/hugo-vrijswijk/tgtg/issues/118)) ([f611382](https://github.com/hugo-vrijswijk/tgtg/commit/f6113820591f010167c6d8d6fc69ae6538822cf5))
+
 ## [1.0.2](https://github.com/hugo-vrijswijk/tgtg/compare/v1.0.1...v1.0.2) (2025-01-07)
 
 
