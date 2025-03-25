@@ -14,7 +14,7 @@ import scala.concurrent.duration.*
 
 class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
   private val baseUri          = uri"https://apptoogoodtogo.com/api/"
-  private val refreshEndpoint  = uri"${baseUri}auth/v5/token/refresh"
+  private val refreshEndpoint  = uri"${baseUri}token/v1/refresh"
   private val itemsEndpoint    = uri"${baseUri}item/v8/"
   private val loginEndpoint    = uri"${baseUri}auth/v5/authByEmail"
   private val authPollEndpoint = uri"${baseUri}auth/v5/authByRequestPollingId"
