@@ -9,7 +9,7 @@
 //> using dep "io.circe::circe-parser::0.14.12"
 //> using dep "org.legogroup::woof-core::0.7.0"
 //> using dep "com.monovore::decline-effect::2.5.0"
-//> using dep "eu.timepit::fs2-cron-cron4s:0.10.0"
+//> using dep "eu.timepit::fs2-cron-cron4s:0.10.1"
 
 //> using jsModuleKind "es"
 //> using jsAvoidClasses false
