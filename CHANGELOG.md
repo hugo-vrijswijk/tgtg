@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/hugo-vrijswijk/tgtg/compare/v1.0.3...v1.0.4) (2025-03-27)
+
+
+### Bug Fixes
+
+* **deps:** update fs2-cron to 0.10.1 ([#122](https://github.com/hugo-vrijswijk/tgtg/issues/122)) ([927e0d1](https://github.com/hugo-vrijswijk/tgtg/commit/927e0d140f089a05ac9f2de1e1f7c08b33760b41))
+
 ## [1.0.3](https://github.com/hugo-vrijswijk/tgtg/compare/v1.0.2...v1.0.3) (2025-03-25)
 
 
