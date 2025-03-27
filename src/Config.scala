@@ -51,7 +51,7 @@ object Config:
     )
   val opts = (tgtg, notification, cronitor, redis, server, log).mapN(Config.apply)
 
-  private object allOpts:
+  object allOpts:
     private given Argument[Uri] = Argument.from("url")(
       Uri
         .parse(_)
@@ -73,7 +73,7 @@ object Config:
     private given Argument[ApiToken] = Argument.from("token")(ApiToken(_).validNel)
     private given Argument[Email]    = Argument.from("email")(Email(_).validNel)
 
-    private given Argument[CronExpr] = Argument.from("cron")(c =>
+    given Argument[CronExpr] = Argument.from("cron")(c =>
       Cron
         .parse(c)
         .leftMap(e => show"Invalid cron '$c': $e")
