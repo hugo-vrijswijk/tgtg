@@ -83,6 +83,24 @@ Intervals and CRON schedules can be combined as many times as needed. For exampl
 $ tgtg --interval 5m --cron "0 0 0 * * ?" --cron "0 0 12 * * ?"
 ```
 
+#### Examples
+
+Here is an example of running the notifier in server mode with some advanced CRON expressions. Tokens are omitted:
+
+```bash
+$ tgtg --cron '0 */2 9-15,18-20 ? * *' --cron '0,30 * 16,17 ? * fri' --cron '0 */2 16,17 ? * mon-thu,sat,sun'
+```
+
+Start time is inclusive, and end time is exclusive. `9-15` will start at 09:00 and end at 15:59.
+
+This has 3 CRON schedules:
+
+1. `0 */2 9-15,18-20 ? * *`: Every 2 minutes between 09:00 and 15:59, and between 18:00 and 20:59. On every day.
+2. `0,30 * 16,17 ? * fri`: Every 30 seconds between 16:00 and 17:59 on Fridays.
+3. `0 */2 16,17 ? * mon-thu,sat,sun`: Every 2 minutes between 16:00 and 17:59 on other days.
+
+This will run the TooGoodToGo Notifier more frequently during times a box I want is likely to be available, less frequently during other times, and not at all during the night.
+
 ### Utilizing Redis for Application State (advanced)
 
 By default, `tgtg` stores authentication tokens and notification history cache in a local file named `cache.json`. For a stateless application, Redis can be used to manage this state.
@@ -94,7 +112,6 @@ $ tgtg --redis-host <REDIS_HOST>
 ```
 
 Alternatively, set the Redis host as an environment variable (`REDIS_HOST`).
-
 
 ## Development
 
