@@ -1,7 +1,6 @@
 # Changelog
 
-## [1.0.5](https://github.com/hugo-vrijswijk/tgtg/compare/tgtg-v1.0.4...tgtg-v1.0.5) (2025-03-28)
-
+## [1.0.5](https://github.com/hugo-vrijswijk/tgtg/compare/v1.0.4...v1.0.5) (2025-03-28)
 
 ### Bug Fixes
 
