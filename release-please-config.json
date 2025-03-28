@@ -3,7 +3,8 @@
   "packages": {
     ".": {
       "release-type": "simple",
-      "version-file": "resources/version.txt"
+      "version-file": "resources/version.txt",
+      "package-name": "tgtg"
     }
   }
 }
