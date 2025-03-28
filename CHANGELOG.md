@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.5](https://github.com/hugo-vrijswijk/tgtg/compare/tgtg-v1.0.4...tgtg-v1.0.5) (2025-03-28)
+
+
+### Bug Fixes
+
+* Automatically update version.txt ([#125](https://github.com/hugo-vrijswijk/tgtg/issues/125)) ([71dc9be](https://github.com/hugo-vrijswijk/tgtg/commit/71dc9beb957d476c5c20917219d1eeb863c98f06))
+
+### Build System
+
+* update version ([9288924](https://github.com/hugo-vrijswijk/tgtg/commit/92889249e29d3143a487eb6518d3935582e63d33))
+
 ## [1.0.4](https://github.com/hugo-vrijswijk/tgtg/compare/v1.0.3...v1.0.4) (2025-03-27)
 
 
