@@ -26,6 +26,7 @@ jobs:
         with:
           release-type: simple
           manifest-file: '.github/release-please-manifest.json'
+          config-file: '.github/release-please-config.json'
   package:
     needs: [release-please]
     if: ${{ needs.release-please.outputs.release_created }}
