@@ -1,7 +1,7 @@
 package tgtg
 
 import cats.effect.IO
-import cats.effect.std.Random
+import cats.effect.std.{Random, UUIDGen}
 import cats.syntax.all.*
 import org.legogroup.woof.{Logger, given}
 import sttp.client4.*
@@ -112,15 +112,19 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
             case StatusCode.TooManyRequests => IO.raiseError(new Exception("Too many requests. Try again later."))
             case _: StatusCode              => IO.raiseError(new Exception(show"Unexpected response: ${r.show()}"))
 
-  private def headers(): IO[Seq[Header]] = Random
-    .scalaUtilRandom[IO]
-    .flatMap(_.betweenInt(0, userAgents.length))
-    .map(i =>
+  private def headers(): IO[Seq[Header]] =
+    (
+      Random
+        .scalaUtilRandom[IO]
+        .flatMap(_.betweenInt(0, userAgents.length)),
+      UUIDGen.randomString[IO]
+    ).parMapN((i, correlationId) =>
       Seq(
         Header.accept(MediaType.ApplicationJson),
         Header.acceptEncoding("gzip"),
         Header(HeaderNames.AcceptLanguage, "en-GB"),
-        Header.userAgent(userAgents(i))
+        Header.userAgent(userAgents(i)),
+        Header("x -correlation-id", correlationId)
       )
     )
 
