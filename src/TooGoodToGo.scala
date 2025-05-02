@@ -21,7 +21,7 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
 
   def getItems(cache: CacheService, config: TgtgConfig) =
     def retrieveItems(access: AccessToken) =
-      headers()
+      headers(true)
         .flatMap(baseHeaders =>
           basicRequest
             .body(asJson(GetItemsRequest()))
@@ -41,7 +41,7 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
   end getItems
 
   def getAccessToken(cache: CacheService, config: TgtgConfig): IO[AccessToken] =
-    val action = headers()
+    val action = headers(true)
       .flatMap: baseHeaders =>
         basicRequest
           .body(asJson(RefreshRequest(config.refreshToken)))
@@ -64,7 +64,7 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
   end getAccessToken
 
   def getCredentials(email: Email): IO[TgtgConfig] =
-    headers().flatMap: baseHeaders =>
+    headers(false).flatMap: baseHeaders =>
       basicRequest
         .body(asJson(LoginRequest(email)))
         .post(loginEndpoint)
@@ -112,21 +112,19 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
             case StatusCode.TooManyRequests => IO.raiseError(new Exception("Too many requests. Try again later."))
             case _: StatusCode              => IO.raiseError(new Exception(show"Unexpected response: ${r.show()}"))
 
-  private def headers(): IO[Seq[Header]] =
+  private def headers(addCorrelationId: Boolean): IO[Seq[Header]] =
     (
       Random
         .scalaUtilRandom[IO]
         .flatMap(_.betweenInt(0, userAgents.length)),
       UUIDGen.randomString[IO]
-    ).parMapN((i, correlationId) =>
+    ).parMapN: (i, correlationId) =>
       Seq(
         Header.accept(MediaType.ApplicationJson),
         Header.acceptEncoding("gzip"),
         Header(HeaderNames.AcceptLanguage, "en-GB"),
-        Header.userAgent(userAgents(i)),
-        Header("x -correlation-id", correlationId)
-      )
-    )
+        Header.userAgent(userAgents(i))
+      ) ++ (if addCorrelationId then Seq(Header("x-correlation-id", correlationId)) else Seq.empty)
 
   private def userAgents = List(
     "TGTG/24.11.0 Dalvik/2.1.0 (Linux; U; Android 9; Nexus 5 Build/M4B30Z)",
