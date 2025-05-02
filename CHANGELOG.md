@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.7](https://github.com/hugo-vrijswijk/tgtg/compare/v1.0.6...v1.0.7) (2025-05-02)
+
+
+### Bug Fixes
+
+* don't add correlationId header for email auth ([#143](https://github.com/hugo-vrijswijk/tgtg/issues/143)) ([611ce65](https://github.com/hugo-vrijswijk/tgtg/commit/611ce65b1a86a94eb4b25e89a1d7e42686033efd))
+
 ## [1.0.6](https://github.com/hugo-vrijswijk/tgtg/compare/v1.0.5...v1.0.6) (2025-05-02)
 
 
