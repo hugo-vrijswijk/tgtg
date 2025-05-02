@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.6](https://github.com/hugo-vrijswijk/tgtg/compare/v1.0.5...v1.0.6) (2025-05-02)
+
+
+### Bug Fixes
+
+* Captcha triggering due to lack of x-correlation-id header ([#141](https://github.com/hugo-vrijswijk/tgtg/issues/141)) ([6c5bf31](https://github.com/hugo-vrijswijk/tgtg/commit/6c5bf31b66e51cc9a5fdd46c3a544a3567d04179))
+
 ## [1.0.5](https://github.com/hugo-vrijswijk/tgtg/compare/v1.0.4...v1.0.5) (2025-03-28)
 
 ### Bug Fixes
