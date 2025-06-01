@@ -62,7 +62,7 @@ object Deps:
       )(WebhookMessage(_, _))
 
   def mkCache(config: Option[RedisConfig])(using log: Logger[IO]): Resource[IO, CacheService] = config match
-    case None => log.debug("Using cache.json").toResource *> FileCacheService.create
+    case None         => log.debug("Using cache.json").toResource *> FileCacheService.create
     case Some(config) =>
       log.debug("Using Redis cache").toResource *> RedisConnection
         .queued[IO]

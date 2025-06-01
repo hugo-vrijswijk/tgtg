@@ -86,39 +86,39 @@ object Config:
       Opts.option[ApiToken]("refresh-token", refreshHelp, "r") orElse
         Opts.env[ApiToken]("TGTG_REFRESH_TOKEN", refreshHelp)
 
-    private val gotifyHelp = "Gotify token for notifications (optional)."
+    private val gotifyHelp  = "Gotify token for notifications (optional)."
     private val gotifyToken =
       Opts.option[ApiToken]("gotify-token", gotifyHelp) orElse Opts.env[ApiToken]("GOTIFY_TOKEN", gotifyHelp)
     private val gotifyUrlHelp = "Gotify server URL to send notifications to."
-    private val gotifyUrl =
+    private val gotifyUrl     =
       Opts.option[Uri]("gotify-url", gotifyUrlHelp) orElse Opts.env[Uri]("GOTIFY_URL", gotifyUrlHelp)
 
     private val gotify = (gotifyToken, gotifyUrl).mapN(NotifyConfig.Gotify.apply)
 
     private val pushbulletHelp = "Pushbullet token for notifications."
-    private val pushbullet =
+    private val pushbullet     =
       (Opts.option[ApiToken]("pushbullet-token", pushbulletHelp) orElse
         Opts.env[ApiToken]("PUSHBULLET_TOKEN", pushbulletHelp))
         .map(NotifyConfig.Pushbullet.apply)
 
     private val pushoverTokenHelp = "Pushover token for notifications."
-    private val pushoverToken =
+    private val pushoverToken     =
       Opts.option[ApiToken]("pushover-token", pushoverTokenHelp) orElse
         Opts.env[ApiToken]("PUSHOVER_TOKEN", pushoverTokenHelp)
     private val pushoverUserHelp = "Pushover user ID for notifications."
-    private val pushoverUser =
+    private val pushoverUser     =
       Opts.option[UserId]("pushover-user", pushoverUserHelp) orElse Opts.env[UserId]("PUSHOVER_USER", pushoverUserHelp)
 
     private val pushover = (pushoverToken, pushoverUser).mapN(NotifyConfig.Pushover.apply)
 
     private val webhookHelp = "Webhook URL to send notifications to."
-    private val webhook = (Opts.option[Uri]("webhook-url", webhookHelp) orElse
+    private val webhook     = (Opts.option[Uri]("webhook-url", webhookHelp) orElse
       Opts.env[Uri]("WEBHOOK_URL", webhookHelp)).map(NotifyConfig.Webhook.apply)
 
     val notification: Opts[NotifyConfig] = List(gotify, pushbullet, pushover, webhook).reduce(_ orElse _)
 
     private val cronitorHelp = "Cronitor token for monitoring (optional)."
-    val cronitor = (Opts.option[ApiToken]("cronitor-token", cronitorHelp) orElse
+    val cronitor             = (Opts.option[ApiToken]("cronitor-token", cronitorHelp) orElse
       Opts.env[ApiToken]("CRONITOR_TOKEN", cronitorHelp)).orNone
 
     val tgtg = refreshToken.map(TgtgConfig.apply)

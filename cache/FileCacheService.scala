@@ -36,7 +36,7 @@ object FileCacheService:
     for
       now   <- Clock[IO].instant.toResource
       cache <- readCacheData(now).toResource
-      ref <- Resource.make(Ref[IO].of(cache))(ref =>
+      ref   <- Resource.make(Ref[IO].of(cache))(ref =>
         for
           now  <- Clock[IO].instant
           data <- ref.get

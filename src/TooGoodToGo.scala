@@ -101,7 +101,7 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
                 else
                   // Poll, or sleep and try again
                   pollRequest.flatMap {
-                    case None => IO.sleep(pollSleep) >> poll(triesLeft - 1)
+                    case None        => IO.sleep(pollSleep) >> poll(triesLeft - 1)
                     case Some(value) =>
                       TgtgConfig(refreshToken = value.refresh_token).pure
                   }
