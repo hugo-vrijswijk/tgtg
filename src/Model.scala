@@ -61,6 +61,12 @@ case class Store(store_name: String) derives Decoder
 case class LoginRequest(email: Email, device_type: String = "ANDROID") derives Encoder.AsObject
 case class LoginResponse(state: String, polling_id: Option[String]) derives Decoder
 
+case class AnonymousEventPayload(
+    country_code: String,
+    uuid: String,
+    event_type: String
+) derives Encoder.AsObject
+
 case class PollRequest(email: Email, request_polling_id: String, device_type: String = "ANDROID")
     derives Encoder.AsObject
 

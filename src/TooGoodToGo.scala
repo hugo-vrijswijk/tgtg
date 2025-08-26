@@ -13,11 +13,12 @@ import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.*
 
 class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
-  private val baseUri          = uri"https://apptoogoodtogo.com/api/"
-  private val refreshEndpoint  = uri"${baseUri}token/v1/refresh"
-  private val itemsEndpoint    = uri"${baseUri}item/v8/"
-  private val loginEndpoint    = uri"${baseUri}auth/v5/authByEmail"
-  private val authPollEndpoint = uri"${baseUri}auth/v5/authByRequestPollingId"
+  private val baseUri                 = uri"https://apptoogoodtogo.com/api/"
+  private val refreshEndpoint         = uri"${baseUri}token/v1/refresh"
+  private val itemsEndpoint           = uri"${baseUri}item/v8/"
+  private val loginEndpoint           = uri"${baseUri}auth/v5/authByEmail"
+  private val authPollEndpoint        = uri"${baseUri}auth/v5/authByRequestPollingId"
+  private val anonymousEventsEndpoint = uri"${baseUri}tracking/v1/anonymousEvents"
 
   def getItems(cache: CacheService, config: TgtgConfig) =
     def retrieveItems(access: AccessToken) =
@@ -64,10 +65,11 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
   end getAccessToken
 
   def getCredentials(email: Email): IO[TgtgConfig] =
-    headers(false).flatMap: baseHeaders =>
+    (headers(false), getCookies).parFlatMapN: (baseHeaders, cookies) =>
       basicRequest
         .body(asJson(LoginRequest(email)))
         .post(loginEndpoint)
+        .cookies(cookies)
         .response(asJsonOrFail[LoginResponse])
         .headers(baseHeaders*)
         .send(http)
@@ -97,7 +99,9 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
 
               def poll(triesLeft: Int): IO[TgtgConfig] =
                 if triesLeft <= 0 then
-                  IO.raiseError(new Exception(show"Max retries (${maxPollRetries * pollSleep}) reached. Try again."))
+                  IO.raiseError(
+                    new Exception(show"Max retries (${maxPollRetries * pollSleep}) reached. Try again.")
+                  )
                 else
                   // Poll, or sleep and try again
                   pollRequest.flatMap {
@@ -109,8 +113,9 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
                 "Check your mailbox on PC to continue... (Mailbox on mobile won't work, if you have installed tgtg app.)\n"
               ) *>
                 poll(maxPollRetries)
-            case StatusCode.TooManyRequests => IO.raiseError(new Exception("Too many requests. Try again later."))
-            case _: StatusCode              => IO.raiseError(new Exception(show"Unexpected response: ${r.show()}"))
+            case StatusCode.TooManyRequests =>
+              IO.raiseError(new Exception("Too many requests. Try again later."))
+            case _: StatusCode => IO.raiseError(new Exception(show"Unexpected response: ${r.show()}"))
 
   private def headers(addCorrelationId: Boolean): IO[Seq[Header]] =
     (
@@ -131,5 +136,21 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
     "TGTG/24.11.0 Dalvik/2.1.0 (Linux; U; Android 10; SM-G935F Build/NRD90M)",
     "TGTG/24.11.0 Dalvik/2.1.0 (Linux; Android 12; SM-G920V Build/MMB29K)"
   )
+
+  private def getCookies =
+    (
+      headers(true),
+      UUIDGen
+        .randomString[IO]
+    ).parFlatMapN: (baseHeaders, uuid) =>
+      basicRequest
+        .body(asJson(AnonymousEventPayload("NL", uuid, "BEFORE_COOKIE_CONSENT")))
+        .post(anonymousEventsEndpoint)
+        .headers(baseHeaders*)
+        .send(http)
+        .map(_.cookies.unite)
+        .flatTap(cookies =>
+          log.debug(show"Received cookies: ${cookies.map(c => s"${c.name}=${c.value}").mkString("; ")}")
+        )
 
 end TooGoodToGo
