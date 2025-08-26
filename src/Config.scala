@@ -2,7 +2,7 @@ package tgtg
 
 import cats.data.NonEmptyList
 import cats.syntax.all.*
-import com.comcast.ip4s.{Host, *}
+import com.comcast.ip4s.Host
 import com.monovore.decline.{Argument, Opts, Visibility}
 import cron4s.{Cron, CronExpr}
 import org.legogroup.woof.LogLevel

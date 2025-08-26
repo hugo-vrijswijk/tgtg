@@ -1,6 +1,5 @@
 package tgtg.cache
 
-import cats.Functor
 import cats.effect.kernel.Clock
 import cats.effect.{IO, Ref, Resource}
 import cats.syntax.all.*
@@ -76,6 +75,6 @@ object FileCacheService:
 end FileCacheService
 
 // Copied from IO.realtimeInstant, which is not available in scala-js
-extension [F[_]: Functor](clock: Clock[F])
+extension [F[_]](clock: Clock[F])
   def instant: F[Instant] =
     clock.applicative.map(clock.realTime)(d => Instant.EPOCH.plusNanos(d.toNanos))
