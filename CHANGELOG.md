@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.8](https://github.com/hugo-vrijswijk/tgtg/compare/v1.0.7...v1.0.8) (2025-08-26)
+
+
+### Bug Fixes
+
+* fix auth by adding missing cookies ([#161](https://github.com/hugo-vrijswijk/tgtg/issues/161)) ([028b692](https://github.com/hugo-vrijswijk/tgtg/commit/028b692e06dc7f256139caf4afcf6001e776e422))
+
 ## [1.0.7](https://github.com/hugo-vrijswijk/tgtg/compare/v1.0.6...v1.0.7) (2025-05-02)
 
 
