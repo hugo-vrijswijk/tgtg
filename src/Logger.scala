@@ -42,10 +42,11 @@ extension [T](fa: IO[T])
           .as(ExitCode.Error)
     )
 
-  private def debugLogStacktrace(t: Throwable)(using Logger[IO], LogInfo) = Resource
+end extension
+
+private def debugLogStacktrace(t: Throwable)(using Logger[IO], LogInfo) =
+  Resource
     .fromAutoCloseable(IO(new StringWriter()))
     .flatMap(sw => Resource.fromAutoCloseable(IO(new PrintWriter(sw))).tupleLeft(sw))
     .use: (sw, pw) =>
       IO(t.printStackTrace(pw)) *> IO(sw.toString()).flatMap(Logger[IO].debug(_))
-
-end extension
