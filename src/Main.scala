@@ -42,7 +42,6 @@ object Main extends CommandIOApp("tgtg", "TooGoodToGo notifier for your favourit
 
           case config: Config =>
             val main = new Main(config)
-
             main.logDeprecations
               *> main.runOrServer
                 .as(ExitCode.Success)
@@ -60,13 +59,13 @@ final class Main(config: Config)(using log: Logger[IO]):
         loop(NonEmptyList.of(5.minutes.asLeft))
       case ServerConfig(intervals, crons, _) =>
         // If intervals or crons is defined, run with them. Otherwise, run once
-        Ior
+        val maybeLoop = Ior
           .fromOptions(intervals, crons)
           .map: ior =>
             val nel = ior.bimap(_.map(_.asLeft), _.map(_.asRight)).merge
-
             loop(nel)
-          .getOrElse(run)
+
+        maybeLoop.getOrElse(run)
 
   /** Run the main loop (log errors, never exit)
     */
