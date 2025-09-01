@@ -3,6 +3,7 @@ package tgtg
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import io.chrisdavenport.rediculous.RedisConnection
+import io.github.iltotore.iron.*
 import org.legogroup.woof.{*, given}
 import sttp.client4.*
 import sttp.client4.logging.{LogConfig, LoggingBackend}
@@ -37,7 +38,7 @@ object Deps:
         name = "Gotify",
         uri = uri"${config.url}/message",
         http = http,
-        headers = Header("X-Gotify-Key", config.token)
+        headers = Header("X-Gotify-Key", config.token.value)
       )(GotifyMessage(_, _))
     case config: NotifyConfig.Pushbullet =>
       // https://docs.pushbullet.com/#create-push
@@ -45,7 +46,7 @@ object Deps:
         name = "Pushbullet",
         uri = uri"https://api.pushbullet.com/v2/pushes",
         http = http,
-        headers = Header("Access-Token", config.token)
+        headers = Header("Access-Token", config.token.value)
       )(PushbulletMessage(_, _))
     case config: NotifyConfig.Pushover =>
       // https://pushover.net/api#messages

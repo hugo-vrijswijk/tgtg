@@ -5,17 +5,23 @@ import cats.syntax.all.*
 import com.comcast.ip4s.Host
 import com.monovore.decline.{Argument, Opts, Visibility}
 import cron4s.{Cron, CronExpr}
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.constraint.collection.Empty
+import io.github.iltotore.iron.constraint.string.ValidEmail
+import io.github.iltotore.iron.decline.given
 import org.legogroup.woof.LogLevel
 import sttp.model.Uri
 import tgtg.notification.NotifyConfig
 
 import scala.concurrent.duration.*
 
-object UserId extends NewType[String]
-type UserId = UserId.Type
+type NotEmpty = DescribedAs[Not[Empty], "Should not be empty"]
 
-object ApiToken extends NewType[String]
-type ApiToken = ApiToken.Type
+object UserId extends RefinedType[String, NotEmpty]
+type UserId = UserId.T
+
+object ApiToken extends RefinedType[String, NotEmpty]
+type ApiToken = ApiToken.T
 
 case class TgtgConfig(refreshToken: ApiToken)
 case class RedisConfig(host: Host)
@@ -25,8 +31,8 @@ case class ServerConfig(
     isServer: Boolean
 )
 
-object Email extends NewType[String]
-type Email = Email.Type
+object Email extends RefinedType[String, ValidEmail]
+type Email = Email.T
 
 trait BaseConfig:
   def log: LogLevel
@@ -60,6 +66,7 @@ object Config:
         .ensureOr(s => show"Url $s must not be relative")(_.isAbsolute)
         .toValidatedNel
     )
+
     private given Argument[Host] =
       Argument.from("host")(str => Host.fromString(str).toRight(show"Invalid host $str").toValidatedNel)
 
@@ -69,9 +76,6 @@ object Config:
       case "warn"  => LogLevel.Warn.validNel
       case "error" => LogLevel.Error.validNel
       case other   => show"Invalid log level $other. Should be one of 'debug', 'info', 'warn' or 'error'".invalidNel)
-
-    private given Argument[ApiToken] = Argument.from("token")(ApiToken(_).validNel)
-    private given Argument[Email]    = Argument.from("email")(Email(_).validNel)
 
     given Argument[CronExpr] = Argument.from("cron")(c =>
       Cron

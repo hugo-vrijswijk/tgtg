@@ -1,12 +1,13 @@
 package tgtg.cache
 
-import cats.Show
 import cats.effect.IO
 import cats.syntax.all.*
 import io.chrisdavenport.rediculous.*
 import io.circe.parser.*
 import io.circe.syntax.*
 import io.circe.{Decoder, Encoder}
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.cats.given
 import org.legogroup.woof.{Logger, given}
 import tgtg.{*, given}
 
@@ -20,21 +21,21 @@ class RedisCacheService(client: RedisConnection[IO])(using log: Logger[IO]) exte
 
   def get[T: Decoder](key: CacheKey): IO[Option[T]] =
     RedisCommands
-      .get[RedisF](key)
+      .get[RedisF](key.value)
       .run(client)
       .flatMap(_.traverse(t => IO.fromEither(decode[T](t))))
       .handleErrorWith(e => log.error(show"Failed to get key '$key': ${e.getMessage()}").as(none))
-      .logTimed(show"getting '$key'")
+      .logTimed(show"getting '$key'".assume[NotEmpty])
 
   def set[T: Encoder](value: T, key: CacheKey, ttl: FiniteDuration): IO[Unit] =
     RedisCommands
-      .set[RedisF](key, value.asJson.noSpaces, SetOpts.default.copy(setSeconds = ttl.toSeconds.some))
+      .set[RedisF](key.value, value.asJson.noSpaces, SetOpts.default.copy(setSeconds = ttl.toSeconds.some))
       .run(client)
       .redeemWith(
         e => log.error(show"Failed to set key '$key': ${e.getMessage()}").void,
         _ => IO.unit
       )
-      .logTimed(show"setting '$key' with ttl of $ttl")
+      .logTimed(show"setting '$key' with ttl of $ttl".assume[NotEmpty])
   end set
 
 end RedisCacheService

@@ -3,6 +3,7 @@ package tgtg
 import cats.effect.kernel.Resource
 import cats.effect.{Clock, ExitCode, IO}
 import cats.syntax.all.*
+import io.github.iltotore.iron.*
 import org.legogroup.woof.*
 import sttp.client4.logging.LogLevel as SttpLogLevel
 
@@ -28,7 +29,7 @@ class LogWrapper(using inner: Logger[IO]) extends sttp.client4.logging.Logger[IO
 end LogWrapper
 
 extension [T](fa: IO[T])
-  def logTimed(msg: String)(using Logger[IO], LogInfo): IO[T] =
+  def logTimed(msg: String :| NotEmpty)(using Logger[IO], LogInfo): IO[T] =
     Clock[IO]
       .timed(fa)
       .flatTap((time, _) => Logger[IO].debug(show"Completed $msg in $time"))

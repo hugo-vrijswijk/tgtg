@@ -1,6 +1,5 @@
 package tgtg
 
-import cats.Show
 import cats.data.Chain
 import cats.syntax.all.*
 
@@ -20,8 +19,8 @@ extension (duration: FiniteDuration)
           val diff   = rest - TimeUnit.SECONDS.convert(result, unit)
           val str    = result match
             case 0    => humanReadable
-            case 1    => humanReadable :+ show"1 ${name.init}" // Drop last 's'
-            case more => humanReadable :+ show"$more $name"
+            case 1    => humanReadable :+ s"1 ${name.init}" // Drop last 's'
+            case more => humanReadable :+ s"$more $name"
           (str, diff)
       ._1
 
