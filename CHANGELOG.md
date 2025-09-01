@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/hugo-vrijswijk/tgtg/compare/v1.0.8...v1.1.0) (2025-09-01)
+
+
+### Features
+
+* stricter type constraints ([#164](https://github.com/hugo-vrijswijk/tgtg/issues/164)) ([03f4586](https://github.com/hugo-vrijswijk/tgtg/commit/03f4586cb27c3f5448aa475475d9bd001ba09902))
+
 ## [1.0.8](https://github.com/hugo-vrijswijk/tgtg/compare/v1.0.7...v1.0.8) (2025-08-26)
 
 
