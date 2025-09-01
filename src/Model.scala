@@ -5,6 +5,9 @@ import cats.effect.IO
 import cats.syntax.all.*
 import fs2.io.file.{Flags, Path}
 import io.circe.{Codec, Decoder, Encoder}
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.circe.given
+import tgtg.notification.Message
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
@@ -49,10 +52,14 @@ given Show[Price] = Show.show: price =>
     case _     => price.code
   show"$currencySymbol ${price.minor_units / math.pow(10, price.decimals)}"
 
-case class ItemWrapper(item: Item, store: Store, items_available: Int, display_name: String) derives Decoder
-
-given Show[ItemWrapper] = i =>
-  show"${i.store.store_name} has ${if i.item.name.isBlank() then "box" else i.item.name} available for ${i.item.item_price}"
+case class ItemWrapper(item: Item, store: Store, items_available: Int, display_name: String :| NotEmpty)
+    derives Decoder:
+  def message: Message =
+    Message(
+      show"${store.store_name} has ${if item.name.isBlank() then "box" else item.name} available for ${item.item_price}"
+        .assume[NotEmpty]
+    )
+end ItemWrapper
 
 case class Item(name: String, item_price: Price) derives Decoder
 

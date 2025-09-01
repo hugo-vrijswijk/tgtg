@@ -1,16 +1,17 @@
 package tgtg.cache
 
-import cats.Show
 import cats.effect.IO
 import cats.syntax.all.*
 import io.circe.{Codec, Decoder, Encoder}
+import io.github.iltotore.iron.RefinedType
+import io.github.iltotore.iron.cats.given
 import org.legogroup.woof.{Logger, given}
-import tgtg.NewType
+import tgtg.NotEmpty
 
 import scala.concurrent.duration.FiniteDuration
 
-object CacheKey extends NewType[String]
-type CacheKey = CacheKey.Type
+object CacheKey extends RefinedType[String, NotEmpty]
+type CacheKey = CacheKey.T
 
 trait CacheService(using log: Logger[IO]):
 

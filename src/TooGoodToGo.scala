@@ -3,6 +3,8 @@ package tgtg
 import cats.effect.IO
 import cats.effect.std.{Random, UUIDGen}
 import cats.syntax.all.*
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.cats.given
 import org.legogroup.woof.{Logger, given}
 import sttp.client4.*
 import sttp.client4.circe.*
@@ -30,7 +32,7 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
             .cookies(access.cookies.toSeq*)
             .headers(baseHeaders*)
             .auth
-            .bearer(access.access_token)
+            .bearer(access.access_token.value)
             .response(asJsonOrFail[GetItemsResponse])
             .send(http)
         )
@@ -61,7 +63,7 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
         )
       )
 
-    cache.retrieveOrSet(action, CacheKey(s"tgtg/accessToken"), a => a.ttl / 4 * 3)
+    cache.retrieveOrSet(action, CacheKey("tgtg/accessToken"), a => a.ttl / 4 * 3)
   end getAccessToken
 
   def getCredentials(email: Email): IO[TgtgConfig] =

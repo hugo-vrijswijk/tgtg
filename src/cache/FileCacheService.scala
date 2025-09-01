@@ -8,6 +8,7 @@ import fs2.io.file.{Files, Flags, Path}
 import io.circe.parser.decode
 import io.circe.syntax.*
 import io.circe.{Decoder, Encoder, Json}
+import io.github.iltotore.iron.circe.given
 import org.legogroup.woof.{Logger, given}
 import tgtg.cache.FileCacheService.Cache
 

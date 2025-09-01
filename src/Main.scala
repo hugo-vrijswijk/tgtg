@@ -8,9 +8,11 @@ import com.monovore.decline.effect.CommandIOApp
 import cron4s.CronExpr
 import eu.timepit.fs2cron.cron4s.Cron4sScheduler
 import fs2.Stream
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.cats.given
 import org.legogroup.woof.{Logger, given}
 import tgtg.cache.CacheKey
-import tgtg.notification.{Message, Title}
+import tgtg.notification.Title
 
 import scala.concurrent.duration.*
 
@@ -111,7 +113,7 @@ final class Main(config: Config)(using log: Logger[IO]):
           if items.isEmpty then log.info(show"No boxes to notify for (from ${stores.length} stores).")
           else
             items.parTraverse_ : item =>
-              val key = CacheKey(show"gotify-${item.store.store_name}")
+              val key = CacheKey.assume(s"gotify-${item.store.store_name}")
 
               val notificationTimeout = 60.minutes
 
@@ -124,7 +126,7 @@ final class Main(config: Config)(using log: Logger[IO]):
                   cache
                     .set(true, key, notificationTimeout)
                     .guarantee(
-                      notify.sendNotification(Title(item.display_name), Message(item.show))
+                      notify.sendNotification(Title(item.display_name), item.message)
                     ),
                   log.info(
                     show"Found boxes, but notification for '$key' was already sent in the last $notificationTimeout."
