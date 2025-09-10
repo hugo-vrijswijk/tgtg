@@ -9,10 +9,8 @@ import cron4s.CronExpr
 import eu.timepit.fs2cron.cron4s.Cron4sScheduler
 import fs2.Stream
 import io.github.iltotore.iron.*
-import io.github.iltotore.iron.cats.given
 import org.legogroup.woof.{Logger, given}
 import tgtg.cache.CacheKey
-import tgtg.notification.Title
 
 import scala.concurrent.duration.*
 
@@ -25,37 +23,46 @@ val version = new String(
 
 object Main extends CommandIOApp("tgtg", "TooGoodToGo notifier for your favourite stores", version = version):
 
-  override def main: Opts[IO[ExitCode]] = (Config.opts orElse Config.auth).map { config =>
+  override def main: Opts[IO[ExitCode]] = Config.command.map { command =>
     Deps
-      .mkLogger(config.log)
+      .mkLogger(command.log)
       .flatMap: log =>
         given Logger[IO] = log
 
-        config match
-          case config: AuthConfig =>
+        command match
+          case command: Command.Auth =>
             Deps
               .mkHttpBackend(none)
               .use: http =>
                 val tgtg = TooGoodToGo(http)
-                val auth = new Auth(tgtg, config)
+                val auth = new Auth(tgtg, command.email)
                 auth.run
                   .as(ExitCode.Success)
                   .handleErrorWithLog
 
-          case config: Config =>
-            val main = new Main(config)
+          case command: Command.Notify =>
+            val main = new Main(command)
             main.logDeprecations
               *> main.runOrServer
                 .as(ExitCode.Success)
                 .handleErrorWithLog
+          case command: tgtg.Command.TestNotification =>
+            Deps
+              .mkHttpBackend(none)
+              .use: http =>
+                command.notification
+                  .sendNotification(http, command.title, command.message) *> log
+                  .info(s"Test notification sent successfully to ${command.notification.name}")
+                  .as(ExitCode.Success)
+                  .handleErrorWithLog
         end match
   }
 end Main
 
-final class Main(config: Config)(using log: Logger[IO]):
+final class Main(command: Command.Notify)(using log: Logger[IO]):
 
   def runOrServer =
-    config.server match
+    command.server match
       // isServer is deprecated, but used: run with default interval
       case ServerConfig(None, None, true) =>
         loop(NonEmptyList.of(5.minutes.asLeft))
@@ -101,19 +108,18 @@ final class Main(config: Config)(using log: Logger[IO]):
   /** Run once
     */
   def run =
-    (Deps.mkHttpBackend(config.cronitor), Deps.mkCache(config.redis)).parTupled.use: (http, cache) =>
+    (Deps.mkHttpBackend(command.cronitor), Deps.mkCache(command.redis)).parTupled.use: (http, cache) =>
 
-      val tgtg   = TooGoodToGo(http)
-      val notify = Deps.mkNotifyService(http, config.notification)
+      val tgtg = TooGoodToGo(http)
 
       tgtg
-        .getItems(cache, config.tgtg)
+        .getItems(cache, command.tgtg)
         .flatMap: stores =>
           val items = stores.filter(_.items_available > 0)
           if items.isEmpty then log.info(show"No boxes to notify for (from ${stores.length} stores).")
           else
             items.parTraverse_ : item =>
-              val key = CacheKey.assume(s"gotify-${item.store.store_name}")
+              val key = CacheKey.assume(s"tgtg/${item.store.store_name}")
 
               val notificationTimeout = 60.minutes
 
@@ -126,15 +132,15 @@ final class Main(config: Config)(using log: Logger[IO]):
                   cache
                     .set(true, key, notificationTimeout)
                     .guarantee(
-                      notify.sendNotification(Title(item.display_name), item.message)
+                      command.notification.sendNotification(http, Title(item.display_name), item.message)
                     ),
                   log.info(
-                    show"Found boxes, but notification for '$key' was already sent in the last $notificationTimeout."
+                    show"Found boxes, but notification for '${item.store.store_name}' was already sent in the last $notificationTimeout."
                   )
                 )
           end if
 
-  def logDeprecations = IO.whenA(config.server.isServer)(
+  def logDeprecations = IO.whenA(command.server.isServer)(
     log.warn("The --server flag is deprecated. Use --interval or --cron options instead.")
   )
 end Main
