@@ -3,7 +3,13 @@
   "packages": {
     ".": {
       "release-type": "simple",
-      "version-file": "resources/version.txt"
+      "version-file": ".github/version.txt",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "src/version.scala"
+        }
+      ]
     }
   }
 }

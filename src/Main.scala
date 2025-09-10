@@ -14,13 +14,6 @@ import tgtg.cache.CacheKey
 
 import scala.concurrent.duration.*
 
-val version = new String(
-  classOf[Main]
-    .getClassLoader()
-    .getResourceAsStream("version.txt")
-    .readAllBytes()
-).trim()
-
 object Main extends CommandIOApp("tgtg", "TooGoodToGo notifier for your favourite stores", version = version):
 
   override def main: Opts[IO[ExitCode]] = Config.command.map { command =>
