@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.0](https://github.com/hugo-vrijswijk/tgtg/compare/v1.0.8...v1.1.0) (2025-09-10)
+
+
+### Features
+
+* add test-notify command ([#168](https://github.com/hugo-vrijswijk/tgtg/issues/168)) ([6e1840c](https://github.com/hugo-vrijswijk/tgtg/commit/6e1840c99a07ff6795339bc3ade97c9c2b92ee17))
+* stricter type constraints ([#164](https://github.com/hugo-vrijswijk/tgtg/issues/164)) ([03f4586](https://github.com/hugo-vrijswijk/tgtg/commit/03f4586cb27c3f5448aa475475d9bd001ba09902))
+
 ## [1.0.8](https://github.com/hugo-vrijswijk/tgtg/compare/v1.0.7...v1.0.8) (2025-08-26)
 
 
