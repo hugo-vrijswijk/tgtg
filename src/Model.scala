@@ -7,7 +7,6 @@ import fs2.io.file.{Flags, Path}
 import io.circe.{Codec, Decoder, Encoder}
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.circe.given
-import tgtg.notification.Message
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration

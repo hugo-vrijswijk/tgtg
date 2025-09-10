@@ -68,6 +68,14 @@ Choose your preferred notification platform for available box alerts:
 
 Each of these options can also be set as environment variables (in `SCREAMING_SNAKE_CASE`).
 
+You can test your notification setup with the `test-notification` command:
+
+```bash
+$ tgtg test-notification --gotify-url <GOTIFY_URL> --gotify-token <GOTIFY_TOKEN>
+```
+
+This will send a test notification to the specified provider. You can customize the message with `--title` and `--message` options.
+
 ### Schedules
 
 To enable server mode, specify intervals or CRON schedules for checking TooGoodToGo boxes:

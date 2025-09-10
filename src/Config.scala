@@ -11,7 +11,6 @@ import io.github.iltotore.iron.constraint.string.ValidEmail
 import io.github.iltotore.iron.decline.given
 import org.legogroup.woof.LogLevel
 import sttp.model.Uri
-import tgtg.notification.NotifyConfig
 
 import scala.concurrent.duration.*
 
@@ -34,28 +33,46 @@ case class ServerConfig(
 object Email extends RefinedType[String, ValidEmail]
 type Email = Email.T
 
-trait BaseConfig:
+enum Command:
   def log: LogLevel
 
-case class AuthConfig(email: Option[Email], log: LogLevel) extends BaseConfig
-
-case class Config(
-    tgtg: TgtgConfig,
-    notification: NotifyConfig,
-    cronitor: Option[ApiToken],
-    redis: Option[RedisConfig],
-    server: ServerConfig,
-    log: LogLevel
-) extends BaseConfig
+  case Auth(email: Option[Email], log: LogLevel)
+  case Notify(
+      tgtg: TgtgConfig,
+      notification: Notification,
+      cronitor: Option[ApiToken],
+      redis: Option[RedisConfig],
+      server: ServerConfig,
+      log: LogLevel
+  )
+  case TestNotification(
+      title: Title,
+      message: Message,
+      notification: Notification,
+      log: LogLevel
+  )
+end Command
 
 object Config:
 
   import allOpts.*
+
   val auth =
     Opts.subcommand("auth", "Authenticate with TooGoodToGo to retrieve your credentials (user-id and refresh-token).")(
-      (userEmail, log).mapN(AuthConfig.apply)
+      (userEmail, log).mapN(Command.Auth.apply)
     )
-  val opts = (tgtg, notification, cronitor, redis, server, log).mapN(Config.apply)
+  val opts             = (tgtg, notification, cronitor, redis, server, log).mapN(Command.Notify.apply)
+  val testNotification =
+    Opts.subcommand("test-notification", "Send a test notification using the provided notification config.")(
+      (
+        title,
+        message,
+        notification,
+        log
+      ).mapN(Command.TestNotification.apply)
+    )
+
+  val command: Opts[Command] = auth orElse opts orElse testNotification
 
   object allOpts:
     private given Argument[Uri] = Argument.from("url")(
@@ -90,20 +107,20 @@ object Config:
       Opts.option[ApiToken]("refresh-token", refreshHelp, "r") orElse
         Opts.env[ApiToken]("TGTG_REFRESH_TOKEN", refreshHelp)
 
-    private val gotifyHelp  = "Gotify token for notifications (optional)."
+    private val gotifyHelp  = "Gotify token for notifications."
     private val gotifyToken =
       Opts.option[ApiToken]("gotify-token", gotifyHelp) orElse Opts.env[ApiToken]("GOTIFY_TOKEN", gotifyHelp)
     private val gotifyUrlHelp = "Gotify server URL to send notifications to."
     private val gotifyUrl     =
       Opts.option[Uri]("gotify-url", gotifyUrlHelp) orElse Opts.env[Uri]("GOTIFY_URL", gotifyUrlHelp)
 
-    private val gotify = (gotifyToken, gotifyUrl).mapN(NotifyConfig.Gotify.apply)
+    private val gotify = (gotifyToken, gotifyUrl).mapN(Notification.gotify)
 
     private val pushbulletHelp = "Pushbullet token for notifications."
     private val pushbullet     =
       (Opts.option[ApiToken]("pushbullet-token", pushbulletHelp) orElse
         Opts.env[ApiToken]("PUSHBULLET_TOKEN", pushbulletHelp))
-        .map(NotifyConfig.Pushbullet.apply)
+        .map(Notification.pushbullet)
 
     private val pushoverTokenHelp = "Pushover token for notifications."
     private val pushoverToken     =
@@ -113,13 +130,14 @@ object Config:
     private val pushoverUser     =
       Opts.option[UserId]("pushover-user", pushoverUserHelp) orElse Opts.env[UserId]("PUSHOVER_USER", pushoverUserHelp)
 
-    private val pushover = (pushoverToken, pushoverUser).mapN(NotifyConfig.Pushover.apply)
+    private val pushover = (pushoverToken, pushoverUser).mapN(Notification.pushover)
 
     private val webhookHelp = "Webhook URL to send notifications to."
     private val webhook     = (Opts.option[Uri]("webhook-url", webhookHelp) orElse
-      Opts.env[Uri]("WEBHOOK_URL", webhookHelp)).map(NotifyConfig.Webhook.apply)
+      Opts.env[Uri]("WEBHOOK_URL", webhookHelp)).map(Notification.webhook)
 
-    val notification: Opts[NotifyConfig] = List(gotify, pushbullet, pushover, webhook).reduce(_ orElse _)
+    val notification: Opts[Notification] =
+      List(gotify, pushbullet, pushover, webhook).reduce(_ orElse _)
 
     private val cronitorHelp = "Cronitor token for monitoring (optional)."
     val cronitor             = (Opts.option[ApiToken]("cronitor-token", cronitorHelp) orElse
@@ -153,6 +171,10 @@ object Config:
     val server = (intervals, crons, isServer).mapN(ServerConfig.apply)
 
     val userEmail = Opts.option[Email]("user-email", "Email to use for authentication (optional).").orNone
-  end allOpts
 
+    val message = Opts
+      .option[Message]("message", "Message body for the test notification.")
+      .withDefault(Message("This is a test notification from tgtg-notifier."))
+    val title = Opts.option[Title]("title", "Title for the test notification.").withDefault(Title("tgtg-notifier test"))
+  end allOpts
 end Config

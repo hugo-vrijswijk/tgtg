@@ -10,18 +10,15 @@ import io.github.iltotore.iron.constraint.string.ValidEmail
 import org.legogroup.woof.{Logger, given}
 import tgtg.*
 
-final class Auth(tgtg: TooGoodToGo, config: AuthConfig)(using log: Logger[IO]):
+final class Auth(tgtg: TooGoodToGo, email: Option[Email])(using log: Logger[IO]):
   def run: IO[Unit] =
     for
-      email <- config.email match
-        case None        => log.info("TooGoodToGo email:") *> readLine
-        case Some(value) => value.pure[IO]
+      email <- email.fold(log.info("TooGoodToGo email:") *> readLine)(_.pure[IO])
       creds <- tgtg.getCredentials(email)
       _     <- log.info(show"refresh-token: ${creds.refreshToken}") *>
         log.info("Use these credentials as config (arguments or environment variables)")
     yield ()
 
-  // Weird summon is needed for scala-js cross-compilation issues
   def readLine: IO[Email] = stdinUtf8[IO](4096)
     .through(text.lines)
     .map(_.strip())
