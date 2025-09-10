@@ -50,9 +50,9 @@ object Main extends CommandIOApp("tgtg", "TooGoodToGo notifier for your favourit
             Deps
               .mkHttpBackend(none)
               .use: http =>
-                command.notification
-                  .sendNotification(http, command.title, command.message) *> log
-                  .info(s"Test notification sent successfully to ${command.notification.name}")
+                (command.notification
+                  .sendNotification(http, command.title, command.message) *>
+                  log.info(s"Test notification sent successfully to ${command.notification.name}"))
                   .as(ExitCode.Success)
                   .handleErrorWithLog
         end match
