@@ -63,6 +63,7 @@ Choose your preferred notification platform for available box alerts:
 - Gotify: `--gotify-url` and `--gotify-token`.
 - Pushbullet: `--pushbullet-token`.
 - Pushover: `--pushover-token` and `--pushover-user`.
+- Telegram: `--telegram-token`. [Create a bot](https://t.me/botfather) and send a message to your bot to initialize the chat.
 - Custom Webhook URL: `--webhook-url`
   - This will send a POST request to the URL with a JSON body containing a `title` and `message`.
 
