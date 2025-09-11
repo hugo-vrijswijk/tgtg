@@ -132,12 +132,16 @@ object Config:
 
     private val pushover = (pushoverToken, pushoverUser).mapN(Notification.pushover)
 
+    private val telegramHelp = "Telegram bot token for notifications."
+    private val telegram     = (Opts.option[ApiToken]("telegram-token", telegramHelp) orElse
+      Opts.env[ApiToken]("TELEGRAM_TOKEN", telegramHelp)).map(Notification.telegram)
+
     private val webhookHelp = "Webhook URL to send notifications to."
     private val webhook     = (Opts.option[Uri]("webhook-url", webhookHelp) orElse
       Opts.env[Uri]("WEBHOOK_URL", webhookHelp)).map(Notification.webhook)
 
     val notification: Opts[Notification] =
-      List(gotify, pushbullet, pushover, webhook).reduce(_ orElse _)
+      List(gotify, pushbullet, pushover, telegram, webhook).reduce(_ orElse _)
 
     private val cronitorHelp = "Cronitor token for monitoring (optional)."
     val cronitor             = (Opts.option[ApiToken]("cronitor-token", cronitorHelp) orElse

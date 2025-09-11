@@ -1,9 +1,11 @@
 package tgtg
 
+import cats.data.NonEmptyList
 import cats.effect.IO
-import cats.syntax.show.*
-import io.circe.Encoder
+import cats.syntax.all.*
+import io.circe.*
 import io.github.iltotore.iron.*
+import io.github.iltotore.iron.cats.given
 import io.github.iltotore.iron.circe.given
 import io.github.iltotore.iron.constraint.numeric.Positive0
 import org.legogroup.woof.{Logger, given}
@@ -47,6 +49,8 @@ object Notification:
       uri = url
     )(WebhookMessage(_, _))
 
+  def telegram(token: ApiToken): Notification = TelegramNotification(token)
+
   private case class GotifyMessage(title: Title, message: Message, priority: Int :| Positive0 = 8)
       derives Encoder.AsObject
   private case class PushbulletMessage(title: Title, body: Message, `type`: String :| NotEmpty = "note")
@@ -77,3 +81,46 @@ type Title = Title.T
 
 object Message extends RefinedType[String, NotEmpty]
 type Message = Message.T
+
+// https://core.telegram.org/bots/api
+private class TelegramNotification(token: ApiToken) extends Notification:
+
+  override def sendNotification(http: Backend[IO], title: Title, message: Message)(using Logger[IO]): IO[Unit] =
+    basicRequest
+      .post(uri("getUpdates"))
+      .response(asJsonOrFail[GetUpdatesResponse])
+      .body(asJson(GetUpdatesMesage(NonEmptyList.one("message"))))
+      .send(http)
+      .map(_.body.result.map(_.message.chat.id))
+      .flatMap:
+        case Nil => IO.raiseError(new Exception("Couldn't find chat, please start a conversation with the bot first"))
+        case userIds =>
+          userIds.parTraverseVoid: userId =>
+            Logger[IO].debug(show"Found Telegram chat id: $userId".assume[NotEmpty]) *>
+              basicRequest
+                .post(uri("sendMessage"))
+                .response(asStringAlways)
+                .body(
+                  asJson(
+                    TelegramSendMessage(
+                      chat_id = userId,
+                      text = show"$title\n\n$message".assume[NotEmpty]
+                    )
+                  )
+                )
+                .send(http)
+      .logTimed("Telegram notification")
+
+  override def name = "Telegram"
+
+  private def uri(method: String): Uri = uri"https://api.telegram.org/bot$token/$method"
+
+  private case class GetUpdatesMesage(allowed_updates: NonEmptyList[String :| NotEmpty]) derives Encoder.AsObject
+  private case class TelegramSendMessage(chat_id: Long, text: String :| NotEmpty) derives Encoder.AsObject
+
+  private case class GetUpdatesResponse(ok: Boolean, result: List[UpdateResponse]) derives Decoder
+  private case class UpdateResponse(message: TelegramMessageResponse) derives Decoder
+  private case class TelegramMessageResponse(chat: ChatResponse) derives Decoder
+  private case class ChatResponse(id: Long) derives Decoder
+
+end TelegramNotification
