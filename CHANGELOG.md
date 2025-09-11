@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.1](https://github.com/hugo-vrijswijk/tgtg/compare/v1.1.0...v1.1.1) (2025-09-11)
+
+
+### Features
+
+* add Telegram notifications ([#171](https://github.com/hugo-vrijswijk/tgtg/issues/171)) ([ed09f07](https://github.com/hugo-vrijswijk/tgtg/commit/ed09f076663c0ccb68ade89290630e379049f1a2))
+
+
+### Build System
+
+* inline version number ([#169](https://github.com/hugo-vrijswijk/tgtg/issues/169)) ([8162d2a](https://github.com/hugo-vrijswijk/tgtg/commit/8162d2a4ab0e3f2a4f66b079a035a22499486692))
+
 ## [1.1.0](https://github.com/hugo-vrijswijk/tgtg/compare/v1.0.8...v1.1.0) (2025-09-10)
 
 
