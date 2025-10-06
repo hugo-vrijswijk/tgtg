@@ -17,7 +17,7 @@ import scala.concurrent.duration.*
 class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
   private val baseUri                 = uri"https://apptoogoodtogo.com/api/"
   private val refreshEndpoint         = uri"${baseUri}token/v1/refresh"
-  private val itemsEndpoint           = uri"${baseUri}item/v8/"
+  private val itemsEndpoint           = uri"${baseUri}item/v9/"
   private val loginEndpoint           = uri"${baseUri}auth/v5/authByEmail"
   private val authPollEndpoint        = uri"${baseUri}auth/v5/authByRequestPollingId"
   private val anonymousEventsEndpoint = uri"${baseUri}tracking/v1/anonymousEvents"
@@ -123,14 +123,15 @@ class TooGoodToGo(http: Backend[IO])(using log: Logger[IO]):
     (
       Random
         .scalaUtilRandom[IO]
-        .flatMap(_.betweenInt(0, userAgents.length)),
+        .flatMap(_.betweenInt(0, userAgents.length))
+        .map(userAgents(_)),
       UUIDGen.randomString[IO]
-    ).parMapN: (i, correlationId) =>
+    ).parMapN: (userAgent, correlationId) =>
       Seq(
         Header.accept(MediaType.ApplicationJson),
         Header.acceptEncoding("gzip"),
         Header(HeaderNames.AcceptLanguage, "en-GB"),
-        Header.userAgent(userAgents(i))
+        Header.userAgent(userAgent)
       ) ++ (if addCorrelationId then Seq(Header("x-correlation-id", correlationId)) else Seq.empty)
 
   private def userAgents = List(
