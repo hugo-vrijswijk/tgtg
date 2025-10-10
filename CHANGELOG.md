@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/hugo-vrijswijk/tgtg/compare/v1.1.1...v1.1.2) (2025-10-10)
+
+
+### Bug Fixes
+
+* use v9 items endpoint ([#176](https://github.com/hugo-vrijswijk/tgtg/issues/176)) ([9c38d04](https://github.com/hugo-vrijswijk/tgtg/commit/9c38d04768c03c01f4095004d2a0ef913c9513eb))
+
 ## [1.1.1](https://github.com/hugo-vrijswijk/tgtg/compare/v1.1.0...v1.1.1) (2025-09-11)
 
 
