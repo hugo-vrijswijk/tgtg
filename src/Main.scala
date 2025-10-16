@@ -102,7 +102,6 @@ final class Main(command: Command.Notify)(using log: Logger[IO]):
     */
   def run =
     (Deps.mkHttpBackend(command.cronitor), Deps.mkCache(command.redis)).parTupled.use: (http, cache) =>
-
       val tgtg = TooGoodToGo(http)
 
       tgtg
