@@ -8,9 +8,9 @@
 //> using dep "io.chrisdavenport::rediculous::0.5.1"
 //> using dep "io.circe::circe-core::0.14.15"
 //> using dep "io.circe::circe-parser::0.14.15"
-//> using dep "io.github.iltotore::iron-cats::3.2.3"
-//> using dep "io.github.iltotore::iron-circe::3.2.3"
-//> using dep "io.github.iltotore::iron-decline::3.2.3"
+//> using dep "io.github.iltotore::iron-cats::3.3.0"
+//> using dep "io.github.iltotore::iron-circe::3.3.0"
+//> using dep "io.github.iltotore::iron-decline::3.3.0"
 //> using dep "org.legogroup::woof-core::0.7.0"
 //> using dep "org.typelevel::cats-effect::3.6.3"
 
