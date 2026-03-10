@@ -1,4 +1,4 @@
-//> using scala "3.8.1"
+//> using scala "3.8.2"
 //> using dep "co.fs2::fs2-core::3.12.2"
 //> using dep "co.fs2::fs2-io::3.12.2"
 //> using dep "com.monovore::decline-effect::2.6.0"
