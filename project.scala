@@ -1,4 +1,4 @@
-//> using scala "3"
+//> using scala "3.8.1"
 //> using dep "co.fs2::fs2-core::3.12.2"
 //> using dep "co.fs2::fs2-io::3.12.2"
 //> using dep "com.monovore::decline-effect::2.6.0"
@@ -12,7 +12,7 @@
 //> using dep "io.github.iltotore::iron-circe::3.3.0"
 //> using dep "io.github.iltotore::iron-decline::3.3.0"
 //> using dep "org.legogroup::woof-core::0.7.0"
-//> using dep "org.typelevel::cats-effect::3.6.3"
+//> using dep "org.typelevel::cats-effect::3.7.0"
 
 //> using jsModuleKind "es"
 //> using jsAvoidClasses false
