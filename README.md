@@ -1,5 +1,9 @@
 # TooGoodToGo Notifier
 
+> [!IMPORTANT]
+> Due to increased anti-bot checks from TooGoodToGo, this application no longer works. I'm not aware of any reasonable counter-measures. 
+> TooGoodToGo now has some built-in notification functionality which might be sufficient for your needs.
+
 Never Miss a TooGoodToGo Box Again!
 
 [![Actions Status](https://github.com/hugo-vrijswijk/tgtg/workflows/CI/badge.svg)](https://github.com/hugo-vrijswijk/tgtg/actions)
